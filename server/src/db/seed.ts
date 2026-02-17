@@ -78,7 +78,7 @@ const SEED_PATIENTS: InsertPatient[] = [
 const SEED_HEALTHCARE_PRO: InsertHealthcarePro = {
   email: 'admin@openpulse.dev',
   // bcrypt hash of 'password123' with cost factor 12
-  passwordHash: '$2a$12$LJ3m4ys3GZfnMRqzON/bbeYQLkHMGSjWLdHavzSEBVhFdPn/SxKKe',
+  passwordHash: '$2b$12$SPzxgOy7SKBajzkpqAODc.G6gQAaawNg3b1os4a4YIRQhreyoqAgm',
   firstName: 'Sarah',
   lastName: 'Mitchell',
   role: 'nurse',
