@@ -48,13 +48,13 @@ export function PatientStateView() {
             </div>
 
             <div className="grid grid-cols-5 gap-1 text-center">
-              <VitalCell label="HR" value={p.currentValues.heartRate} unit="bpm" />
+              <VitalCell label="HR" value={Math.round(p.currentValues.heartRate)} unit="bpm" />
               <VitalCell
                 label="BP"
-                value={`${p.currentValues.bpSystolic}/${p.currentValues.bpDiastolic}`}
+                value={`${Math.round(p.currentValues.bpSystolic)}/${Math.round(p.currentValues.bpDiastolic)}`}
               />
-              <VitalCell label="SpO2" value={p.currentValues.spo2} unit="%" />
-              <VitalCell label="Temp" value={p.currentValues.temperature} unit="F" />
+              <VitalCell label="SpO2" value={p.currentValues.spo2.toFixed(1)} unit="%" />
+              <VitalCell label="Temp" value={p.currentValues.temperature.toFixed(1)} unit="°C" />
               <VitalCell
                 label="Anomaly"
                 value={p.isAnomaly ? 'Yes' : 'No'}
