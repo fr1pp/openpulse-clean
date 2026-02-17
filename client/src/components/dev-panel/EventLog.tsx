@@ -1,4 +1,3 @@
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useSimulatorEvents } from '@/hooks/useSimulatorEvents'
@@ -10,6 +9,15 @@ const eventColors: Record<string, string> = {
   anomaly_resolved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   scenario_started: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
   scenario_ended: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+}
+
+const eventLabels: Record<string, string> = {
+  threshold_entered: 'threshold',
+  threshold_exited: 'resolved',
+  anomaly_started: 'anomaly',
+  anomaly_resolved: 'resolved',
+  scenario_started: 'scenario',
+  scenario_ended: 'ended',
 }
 
 function formatTime(iso: string): string {
@@ -40,7 +48,7 @@ export function EventLog() {
         )}
       </div>
 
-      <ScrollArea className="h-[200px] rounded-md border">
+      <div className="h-[200px] overflow-y-auto rounded-md border">
         {events.length === 0 ? (
           <p className="p-3 text-xs text-muted-foreground">
             No events yet. Events will appear as the simulator detects threshold
@@ -51,26 +59,25 @@ export function EventLog() {
             {events.map((event, i) => (
               <div
                 key={`${event.timestamp}-${event.patientId}-${i}`}
-                className="flex items-start gap-2 text-xs"
+                className="flex items-baseline gap-1.5 text-xs min-w-0"
               >
-                <span className="text-muted-foreground font-mono whitespace-nowrap shrink-0">
+                <span className="text-muted-foreground font-mono tabular-nums shrink-0 text-[10px]">
                   {formatTime(event.timestamp)}
                 </span>
                 <Badge
                   variant="secondary"
-                  className={`text-[10px] px-1 py-0 shrink-0 ${eventColors[event.type] ?? ''}`}
+                  className={`text-[9px] px-1 py-0 shrink-0 leading-tight ${eventColors[event.type] ?? ''}`}
                 >
-                  {event.type.replace(/_/g, ' ')}
+                  {eventLabels[event.type] ?? event.type}
                 </Badge>
-                <span className="truncate">
-                  <span className="font-medium">{event.patientName}</span>{' '}
-                  <span className="text-muted-foreground">{event.message}</span>
+                <span className="truncate min-w-0">
+                  <span className="font-medium">{event.patientName}</span>
                 </span>
               </div>
             ))}
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   )
 }

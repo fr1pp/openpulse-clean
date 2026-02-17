@@ -30,7 +30,6 @@ interface DevPanelDrawerProps {
 function DevPanelContent() {
   return (
     <div className="space-y-4">
-      <Separator />
       <SimulatorControls />
       <Separator />
       <ScenarioSelector />
@@ -60,8 +59,8 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
   if (isDesktop) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent className="sm:max-w-md p-0">
-          <SheetHeader className="px-6 pt-6 pb-2">
+        <SheetContent className="sm:max-w-md p-0 flex flex-col">
+          <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
             <div className="flex items-center gap-3">
               <SheetTitle>Simulator Dev Panel</SheetTitle>
               <StatusBadge />
@@ -70,7 +69,7 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
               {status?.patientCount ?? 0} patients
             </SheetDescription>
           </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-5rem)]">
+          <ScrollArea className="flex-1 min-h-0">
             <div className="px-6 pb-6">
               <DevPanelContent />
             </div>
@@ -81,9 +80,9 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} snapPoints={[0.75]} fadeFromIndex={0}>
-      <DrawerContent className="max-h-[75vh]">
-        <DrawerHeader className="text-left">
+    <Drawer open={open} onOpenChange={onOpenChange} handleOnly>
+      <DrawerContent className="max-h-[80vh]">
+        <DrawerHeader className="text-left shrink-0">
           <div className="flex items-center gap-3">
             <DrawerTitle>Simulator Dev Panel</DrawerTitle>
             <StatusBadge />
@@ -92,7 +91,10 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
             {status?.patientCount ?? 0} patients
           </DrawerDescription>
         </DrawerHeader>
-        <div className="overflow-y-auto flex-1 px-4 pb-6">
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain px-4 pb-6"
+          data-vaul-no-drag
+        >
           <DevPanelContent />
         </div>
       </DrawerContent>
