@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react'
+import { Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface DevPanelTriggerProps {
@@ -14,7 +14,7 @@ export function DevPanelTrigger({ onClick }: DevPanelTriggerProps) {
       onClick={onClick}
       aria-label="Open dev panel"
     >
-      <Settings className="h-5 w-5" />
+      <Terminal className="h-5 w-5" />
     </Button>
   )
 }

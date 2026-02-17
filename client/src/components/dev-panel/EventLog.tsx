@@ -66,7 +66,7 @@ function formatTime(iso: string): string {
 }
 
 export function EventLog() {
-  const { events, clearEvents } = useSimulatorEvents(30)
+  const { events, clearEvents } = useSimulatorEvents()
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   function toggleExpand(index: number) {

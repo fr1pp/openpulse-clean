@@ -1,22 +1,43 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 import { socket } from '@/lib/socket'
 import type { SimulatorEventPayload } from '@openpulse/shared'
 
-export function useSimulatorEvents(maxEvents = 50) {
-  const [events, setEvents] = useState<SimulatorEventPayload[]>([])
+// Module-level event buffer — survives component mount/unmount cycles.
+const MAX_EVENTS = 30
+let events: SimulatorEventPayload[] = []
+let listeners = new Set<() => void>()
+let listening = false
 
-  useEffect(() => {
-    function handleEvent(event: SimulatorEventPayload) {
-      setEvents((prev) => [event, ...prev].slice(0, maxEvents))
-    }
+function notify() {
+  for (const cb of listeners) cb()
+}
 
-    socket.on('simulator:event', handleEvent)
-    return () => {
-      socket.off('simulator:event', handleEvent)
-    }
-  }, [maxEvents])
+function startSocketListener() {
+  if (listening) return
+  listening = true
+  socket.on('simulator:event', (event: SimulatorEventPayload) => {
+    events = [event, ...events].slice(0, MAX_EVENTS)
+    notify()
+  })
+}
 
-  const clearEvents = useCallback(() => setEvents([]), [])
+function subscribe(cb: () => void) {
+  listeners.add(cb)
+  startSocketListener()
+  return () => { listeners.delete(cb) }
+}
 
-  return { events, clearEvents }
+function getSnapshot() {
+  return events
+}
+
+export function useSimulatorEvents() {
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot)
+
+  const clearEvents = useCallback(() => {
+    events = []
+    notify()
+  }, [])
+
+  return { events: snapshot, clearEvents }
 }
