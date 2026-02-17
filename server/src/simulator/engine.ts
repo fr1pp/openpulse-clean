@@ -6,20 +6,23 @@ import type { VitalReadingPayload, SimulatorEventPayload } from '@openpulse/shar
 import type { SimulatorStatus, ScenarioId, PatientBaseline } from '@openpulse/shared'
 import { ouStep, clampVital } from './generators.js'
 import type { OUParams } from './generators.js'
-import { applyCircadian } from './circadian.js'
 import { applyCorrelations } from './correlations.js'
 import { getBaselines, getDefaultBaseline } from './baselines.js'
 import { SCENARIOS } from './scenarios.js'
 import { PatientState } from './patient-state.js'
 import { SimulatedClock } from './clock.js'
 
-// Default OU parameters per vital type (theta, sigma; mu comes from circadian-adjusted baseline)
-const DEFAULT_OU_PARAMS: Record<string, { theta: number; sigma: number }> = {
-  heartRate:   { theta: 0.15, sigma: 4.0 },
-  bpSystolic:  { theta: 0.12, sigma: 5.0 },
-  bpDiastolic: { theta: 0.12, sigma: 3.5 },
-  spo2:        { theta: 0.20, sigma: 1.0 },
-  temperature: { theta: 0.10, sigma: 0.15 },
+// Default OU parameters per vital type.
+// sigma is derived at tick-time from the patient's baseline stdDev:
+//   sigma = volatilityFraction * baselineStdDev * sqrt(2 * theta)
+// This guarantees the OU steady-state stdDev = volatilityFraction * baselineStdDev,
+// keeping noise proportional to each patient's clinical range regardless of their profile.
+const DEFAULT_OU_PARAMS: Record<string, { theta: number; volatilityFraction: number }> = {
+  heartRate:   { theta: 0.15, volatilityFraction: 0.6 },
+  bpSystolic:  { theta: 0.12, volatilityFraction: 0.6 },
+  bpDiastolic: { theta: 0.12, volatilityFraction: 0.6 },
+  spo2:        { theta: 0.20, volatilityFraction: 0.6 },
+  temperature: { theta: 0.10, volatilityFraction: 0.6 },
 }
 
 const VITAL_TYPES = ['heartRate', 'bpSystolic', 'bpDiastolic', 'spo2', 'temperature'] as const
@@ -102,12 +105,11 @@ export class SimulatorEngine {
 
   /**
    * Execute one tick of the simulation for all patients.
-   * For each patient: compute circadian mu, apply scenario overrides,
+   * For each patient: build OU params from baseline, apply scenario overrides,
    * run OU step, apply correlations, clamp, check anomalies, emit.
    */
   private tick(): void {
     const simTime = this.clock.getSimulatedTime()
-    const simHour = this.clock.getSimulatedHour()
     const simTimeMs = simTime.getTime()
     const recordedAt = new Date().toISOString() // Use actual wall-clock time per pitfall 5
 
@@ -132,15 +134,14 @@ export class SimulatorEngine {
         const baselineKey = BASELINE_KEY_MAP[vitalType]
         const baselineStat = patient.baseline[baselineKey]
 
-        // Circadian-adjusted mu
-        const circadianMu = applyCircadian(baselineStat.mean, vitalType, simHour)
-
-        // Base OU params
+        // Derive sigma from patient's baseline stdDev so OU noise scales per-patient
         const defaults = DEFAULT_OU_PARAMS[vitalType]
+        const sigma = defaults.volatilityFraction * baselineStat.stdDev * Math.sqrt(2 * defaults.theta)
+
         const baseParams: OUParams = {
           theta: defaults.theta,
-          mu: circadianMu,
-          sigma: defaults.sigma,
+          mu: baselineStat.mean,
+          sigma,
           dt: 1, // 1 tick unit
         }
 
@@ -167,7 +168,7 @@ export class SimulatorEngine {
         patient.currentValues[vitalType as keyof typeof patient.currentValues] = clamped
       }
 
-      // Step 4: Check anomaly status (any vital beyond 2 stdDevs from baseline)
+      // Step 4: Check anomaly status (any vital beyond 2 stdDevs from baseline mean)
       const wasAnomaly = patient.isAnomaly
       let isNowAnomaly = false
 

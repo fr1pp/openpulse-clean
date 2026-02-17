@@ -1,6 +1,6 @@
 // Simulated clock with configurable speed multiplier.
 // At speed=1 (real-time), simulated time matches wall-clock time.
-// At speed=24, one real hour = one simulated day (for circadian testing).
+// At speed=24, one real hour = one simulated day (useful for scenario testing).
 
 export class SimulatedClock {
   private realStartTime: number
@@ -20,15 +20,6 @@ export class SimulatedClock {
     const realElapsed = Date.now() - this.realStartTime
     const simElapsed = realElapsed * this.speedMultiplier
     return new Date(this.simStartTime + simElapsed)
-  }
-
-  /**
-   * Get the simulated hour as a fractional value (0-23.99).
-   * Used for circadian modulation.
-   */
-  getSimulatedHour(): number {
-    const simTime = this.getSimulatedTime()
-    return simTime.getHours() + simTime.getMinutes() / 60 + simTime.getSeconds() / 3600
   }
 
   /**

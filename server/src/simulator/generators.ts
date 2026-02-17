@@ -3,7 +3,7 @@
 
 export interface OUParams {
   theta: number   // Mean reversion speed (higher = faster reversion)
-  mu: number      // Long-term mean (baseline, adjusted by circadian)
+  mu: number      // Long-term mean (patient baseline, shifted by scenario overrides)
   sigma: number   // Volatility (stdDev of noise)
   dt: number      // Time step in arbitrary units (1 per tick)
 }
