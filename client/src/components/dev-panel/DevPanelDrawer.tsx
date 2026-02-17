@@ -81,8 +81,8 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
+    <Drawer open={open} onOpenChange={onOpenChange} snapPoints={[0.75]} fadeFromIndex={0}>
+      <DrawerContent className="max-h-[75vh]">
         <DrawerHeader className="text-left">
           <div className="flex items-center gap-3">
             <DrawerTitle>Simulator Dev Panel</DrawerTitle>
@@ -92,11 +92,9 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
             {status?.patientCount ?? 0} patients
           </DrawerDescription>
         </DrawerHeader>
-        <ScrollArea className="max-h-[60vh] overflow-auto">
-          <div className="px-4 pb-6">
-            <DevPanelContent />
-          </div>
-        </ScrollArea>
+        <div className="overflow-y-auto flex-1 px-4 pb-6">
+          <DevPanelContent />
+        </div>
       </DrawerContent>
     </Drawer>
   )

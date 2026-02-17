@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,18 @@ export function SimulatorControls() {
   const [confirmReset, setConfirmReset] = useState(false)
 
   const isRunning = status?.running ?? false
-  const currentSpeed = status?.speed ?? 1
+  const serverSpeed = status?.speed ?? 1
+
+  // Local speed state for smooth slider dragging without poll interference
+  const [localSpeed, setLocalSpeed] = useState(serverSpeed)
+  const [isDragging, setIsDragging] = useState(false)
+
+  // Sync from server only when not dragging
+  useEffect(() => {
+    if (!isDragging) {
+      setLocalSpeed(serverSpeed)
+    }
+  }, [serverSpeed, isDragging])
 
   function handleToggle(checked: boolean) {
     if (checked) {
@@ -31,6 +42,14 @@ export function SimulatorControls() {
   }
 
   function handleSpeedChange(value: number[]) {
+    const speed = value[0]
+    if (speed !== undefined) {
+      setLocalSpeed(speed)
+    }
+  }
+
+  function handleSpeedCommit(value: number[]) {
+    setIsDragging(false)
     const speed = value[0]
     if (speed !== undefined) {
       speedMutation.mutate(speed)
@@ -70,23 +89,25 @@ export function SimulatorControls() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label className="text-sm">Speed</Label>
-          <span className="text-xs text-muted-foreground font-mono">
-            {currentSpeed}x
+          <span className="text-xs text-muted-foreground font-mono tabular-nums w-8 text-right">
+            {localSpeed}x
           </span>
         </div>
         <Slider
-          value={[currentSpeed]}
+          value={[localSpeed]}
           min={1}
           max={24}
           step={1}
-          onValueCommit={handleSpeedChange}
+          onValueChange={handleSpeedChange}
+          onValueCommit={handleSpeedCommit}
+          onPointerDown={() => setIsDragging(true)}
           disabled={speedMutation.isPending}
         />
       </div>
 
       <div className="flex items-center justify-between">
         <Label className="text-sm">Simulated Time</Label>
-        <span className="text-xs text-muted-foreground font-mono">
+        <span className="text-xs text-muted-foreground font-mono truncate ml-2">
           {simulatedTime}
         </span>
       </div>

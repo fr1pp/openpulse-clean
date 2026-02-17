@@ -2,6 +2,14 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSimulatorStatus } from '@/hooks/useSimulatorStatus'
 
+function fmtInt(v: number): string {
+  return Math.round(v).toString()
+}
+
+function fmtDec(v: number): string {
+  return v.toFixed(1)
+}
+
 export function PatientStateView() {
   const { data: status, isLoading } = useSimulatorStatus()
 
@@ -31,8 +39,8 @@ export function PatientStateView() {
             className="rounded-md border p-2 space-y-1.5"
           >
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">{p.patientName}</span>
-              <div className="flex items-center gap-1">
+              <span className="text-sm font-medium truncate">{p.patientName}</span>
+              <div className="flex items-center gap-1 shrink-0">
                 {p.isAnomaly && (
                   <span
                     className="inline-block w-2 h-2 rounded-full bg-red-500"
@@ -47,19 +55,11 @@ export function PatientStateView() {
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-1 text-center">
-              <VitalCell label="HR" value={Math.round(p.currentValues.heartRate)} unit="bpm" />
-              <VitalCell
-                label="BP"
-                value={`${Math.round(p.currentValues.bpSystolic)}/${Math.round(p.currentValues.bpDiastolic)}`}
-              />
-              <VitalCell label="SpO2" value={p.currentValues.spo2.toFixed(1)} unit="%" />
-              <VitalCell label="Temp" value={p.currentValues.temperature.toFixed(1)} unit="°C" />
-              <VitalCell
-                label="Anomaly"
-                value={p.isAnomaly ? 'Yes' : 'No'}
-                highlight={p.isAnomaly}
-              />
+            <div className="grid grid-cols-4 gap-2">
+              <VitalCell label="HR" value={fmtInt(p.currentValues.heartRate)} unit="bpm" />
+              <VitalCell label="BP" value={`${fmtInt(p.currentValues.bpSystolic)}/${fmtInt(p.currentValues.bpDiastolic)}`} />
+              <VitalCell label="SpO2" value={fmtDec(p.currentValues.spo2)} unit="%" />
+              <VitalCell label="Temp" value={fmtDec(p.currentValues.temperature)} unit="°C" />
             </div>
           </div>
         ))}
@@ -72,22 +72,18 @@ function VitalCell({
   label,
   value,
   unit,
-  highlight,
 }: {
   label: string
-  value: string | number
+  value: string
   unit?: string
-  highlight?: boolean
 }) {
   return (
-    <div className="flex flex-col">
-      <span className="text-[9px] text-muted-foreground uppercase">{label}</span>
-      <span
-        className={`text-xs font-mono ${highlight ? 'text-red-500 font-bold' : ''}`}
-      >
+    <div className="min-w-0">
+      <div className="text-[9px] text-muted-foreground uppercase">{label}</div>
+      <div className="text-xs font-mono tabular-nums truncate">
         {value}
-        {unit && <span className="text-[8px] text-muted-foreground">{unit}</span>}
-      </span>
+        {unit && <span className="text-[8px] text-muted-foreground ml-0.5">{unit}</span>}
+      </div>
     </div>
   )
 }
