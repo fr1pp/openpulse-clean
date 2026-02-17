@@ -12,52 +12,48 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
   const uniqueId = useId().replace(/:/g, '')
   const elementId = `qr-reader-${uniqueId}`
   const scannerRef = useRef<Html5Qrcode | null>(null)
-  const startedRef = useRef(false)
   const [isStarting, setIsStarting] = useState(true)
   const [cameraError, setCameraError] = useState<string | null>(null)
 
   useEffect(() => {
-    const startScanner = async () => {
-      try {
-        const scanner = new Html5Qrcode(elementId)
-        scannerRef.current = scanner
+    // Defer so strict mode's mount→cleanup→mount clears the first
+    // timer before it fires — only the final mount starts the camera.
+    const timer = setTimeout(() => {
+      const startScanner = async () => {
+        try {
+          const scanner = new Html5Qrcode(elementId)
+          scannerRef.current = scanner
 
-        await scanner.start(
-          { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (decodedText) => {
-            onScan(decodedText)
-            try { scanner.stop().catch(() => {}) } catch { /* not running */ }
-          },
-          () => {
-            // Ignore scan failures (no QR code in frame)
-          },
-        )
-        startedRef.current = true
-        setIsStarting(false)
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Camera not available'
-        setCameraError(errorMessage)
-        setIsStarting(false)
-        onError?.(errorMessage)
+          await scanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+              onScan(decodedText)
+              try { scanner.stop().catch(() => {}) } catch { /* not running */ }
+            },
+            () => {
+              // Ignore scan failures (no QR code in frame)
+            },
+          )
+          setIsStarting(false)
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : 'Camera not available'
+          setCameraError(errorMessage)
+          setIsStarting(false)
+          onError?.(errorMessage)
+        }
       }
-    }
 
-    startScanner()
+      startScanner()
+    }, 0)
 
     return () => {
+      clearTimeout(timer)
       const scanner = scannerRef.current
       if (scanner) {
-        try {
-          if (startedRef.current) {
-            scanner.stop().then(() => scanner.clear()).catch(() => {})
-          }
-        } catch {
-          // html5-qrcode stop() throws synchronously if not running
-        }
+        try { scanner.stop().catch(() => {}) } catch {}
         scannerRef.current = null
-        startedRef.current = false
       }
     }
   }, [])
