@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
@@ -22,16 +22,16 @@ export function SimulatorControls() {
   const isRunning = status?.running ?? false
   const serverSpeed = status?.speed ?? 1
 
-  // Local speed state for smooth slider dragging without poll interference
+  // Local speed state decoupled from server polling.
+  // Only sync from server when we're not actively interacting.
   const [localSpeed, setLocalSpeed] = useState(serverSpeed)
-  const [isDragging, setIsDragging] = useState(false)
+  const interactingRef = useRef(false)
 
-  // Sync from server only when not dragging
   useEffect(() => {
-    if (!isDragging) {
+    if (!interactingRef.current) {
       setLocalSpeed(serverSpeed)
     }
-  }, [serverSpeed, isDragging])
+  }, [serverSpeed])
 
   function handleToggle(checked: boolean) {
     if (checked) {
@@ -41,19 +41,16 @@ export function SimulatorControls() {
     }
   }
 
-  function handleSpeedChange(value: number[]) {
+  function handleSpeedDrag(value: number[]) {
+    interactingRef.current = true
     const speed = value[0]
-    if (speed !== undefined) {
-      setLocalSpeed(speed)
-    }
+    if (speed !== undefined) setLocalSpeed(speed)
   }
 
   function handleSpeedCommit(value: number[]) {
-    setIsDragging(false)
+    interactingRef.current = false
     const speed = value[0]
-    if (speed !== undefined) {
-      speedMutation.mutate(speed)
-    }
+    if (speed !== undefined) speedMutation.mutate(speed)
   }
 
   function handleResetAll() {
@@ -71,7 +68,7 @@ export function SimulatorControls() {
     : '--'
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <h3 className="text-sm font-semibold">Controls</h3>
 
       <div className="flex items-center justify-between">
@@ -86,10 +83,10 @@ export function SimulatorControls() {
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <Label className="text-sm">Speed</Label>
-          <span className="text-xs text-muted-foreground font-mono tabular-nums w-8 text-right">
+          <span className="text-xs text-muted-foreground font-mono tabular-nums">
             {localSpeed}x
           </span>
         </div>
@@ -98,16 +95,15 @@ export function SimulatorControls() {
           min={1}
           max={24}
           step={1}
-          onValueChange={handleSpeedChange}
+          onValueChange={handleSpeedDrag}
           onValueCommit={handleSpeedCommit}
-          onPointerDown={() => setIsDragging(true)}
           disabled={speedMutation.isPending}
         />
       </div>
 
-      <div className="flex items-center justify-between">
-        <Label className="text-sm">Simulated Time</Label>
-        <span className="text-xs text-muted-foreground font-mono truncate ml-2">
+      <div className="flex items-center justify-between gap-2">
+        <Label className="text-sm shrink-0">Sim. Time</Label>
+        <span className="text-xs text-muted-foreground font-mono tabular-nums truncate">
           {simulatedTime}
         </span>
       </div>
