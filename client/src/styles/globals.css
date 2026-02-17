@@ -122,3 +122,24 @@
     @apply bg-background text-foreground;
     }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-card,
+  .print-card * {
+    visibility: visible;
+  }
+  .print-card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 2rem;
+    border: 2px solid #000;
+    border-radius: 8px;
+    width: 350px;
+  }
+}

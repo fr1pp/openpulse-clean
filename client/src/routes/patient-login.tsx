@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PatientCodeInput } from '@/components/auth/PatientCodeInput'
+import { QrScanner } from '@/components/auth/QrScanner'
 import { usePatientLogin } from '@/api/mutations/auth'
 
 const patientLoginSearchSchema = z.object({
@@ -83,19 +84,33 @@ function PatientLoginPage() {
           </CardHeader>
           <CardContent>
             {showScanner ? (
-              <div className="flex flex-col items-center gap-4">
-                {/* QR scanner will be integrated in Task 2 */}
-                <p className="text-center text-sm text-muted-foreground">
-                  QR scanner loading...
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowScanner(false)}
-                  className="min-h-[44px]"
-                >
-                  Back to code entry
-                </Button>
-              </div>
+              <QrScanner
+                onScan={(decodedText) => {
+                  let scannedCode = ''
+                  try {
+                    const url = new URL(decodedText)
+                    const urlCode = url.searchParams.get('code')
+                    if (urlCode) {
+                      scannedCode = urlCode.toUpperCase()
+                    }
+                  } catch {
+                    // Not a URL -- treat as raw code if 4 chars alphanumeric
+                    const cleaned = decodedText.toUpperCase().replace(/[^A-Z0-9]/g, '')
+                    if (cleaned.length === 4) {
+                      scannedCode = cleaned
+                    }
+                  }
+                  if (scannedCode) {
+                    setCode(scannedCode)
+                    setShowScanner(false)
+                    handleLogin(scannedCode)
+                  }
+                }}
+                onError={() => {
+                  // QrScanner handles its own fallback UI
+                }}
+                onClose={() => setShowScanner(false)}
+              />
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 {errorMessage && (
