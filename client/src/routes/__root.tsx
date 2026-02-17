@@ -46,7 +46,7 @@ function RootComponent() {
   const { auth } = Route.useRouteContext()
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={300}>
       <div className="min-h-screen bg-background text-foreground">
         {auth.isAuthenticated && <SocketBridge />}
         {auth.isAuthenticated && <DevPanel />}
