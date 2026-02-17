@@ -28,6 +28,13 @@ function PatientLoginPage() {
   const patientLogin = usePatientLogin()
 
   const [code, setCode] = useState(initialCode || '')
+
+  useEffect(() => {
+    if (initialCode) {
+      setCode(initialCode)
+    }
+  }, [initialCode])
+
   const [showScanner, setShowScanner] = useState(false)
   const autoSubmitDone = useRef(false)
 
@@ -48,8 +55,8 @@ function PatientLoginPage() {
   // Auto-submit when code comes from URL search param
   useEffect(() => {
     if (initialCode && initialCode.length === 4 && !autoSubmitDone.current) {
-      autoSubmitDone.current = true
       const timer = setTimeout(() => {
+        autoSubmitDone.current = true
         handleLogin(initialCode)
       }, 500)
       return () => clearTimeout(timer)
