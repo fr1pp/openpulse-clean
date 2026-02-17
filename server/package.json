@@ -3,7 +3,26 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "dev": "tsx watch --conditions=@openpulse/source src/index.ts",
+    "build": "tsc",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx --conditions=@openpulse/source src/db/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
-    "@openpulse/shared": "workspace:*"
+    "@openpulse/shared": "workspace:*",
+    "better-sqlite3": "^12",
+    "drizzle-orm": "^0.45",
+    "express": "^5",
+    "zod": "^4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7",
+    "@types/express": "^5",
+    "@types/node": "^22",
+    "drizzle-kit": "^0.31",
+    "tsx": "^4",
+    "typescript": "~5.9"
   }
 }
