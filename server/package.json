@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --conditions=@openpulse/source src/index.ts",
+    "dev": "drizzle-kit push && tsx watch --conditions=@openpulse/source src/index.ts",
     "build": "tsc",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx --conditions=@openpulse/source src/db/seed.ts",
