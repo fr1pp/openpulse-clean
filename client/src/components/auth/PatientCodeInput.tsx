@@ -16,7 +16,8 @@ export function PatientCodeInput({
   autoFocus = false,
 }: PatientCodeInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-  const chars = value.toUpperCase().padEnd(CODE_LENGTH, '').split('').slice(0, CODE_LENGTH)
+  const upper = value.toUpperCase()
+  const chars = Array.from({ length: CODE_LENGTH }, (_, i) => upper[i] || '')
 
   useEffect(() => {
     if (autoFocus && inputRefs.current[0]) {

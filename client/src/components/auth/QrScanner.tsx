@@ -12,15 +12,11 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
   const uniqueId = useId().replace(/:/g, '')
   const elementId = `qr-reader-${uniqueId}`
   const scannerRef = useRef<Html5Qrcode | null>(null)
-  const mountedRef = useRef(false)
+  const startedRef = useRef(false)
   const [isStarting, setIsStarting] = useState(true)
   const [cameraError, setCameraError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Handle React strict mode double-mount
-    if (mountedRef.current) return
-    mountedRef.current = true
-
     const startScanner = async () => {
       try {
         const scanner = new Html5Qrcode(elementId)
@@ -31,12 +27,13 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
           { fps: 10, qrbox: { width: 250, height: 250 } },
           (decodedText) => {
             onScan(decodedText)
-            scanner.stop().catch(() => {})
+            try { scanner.stop().catch(() => {}) } catch { /* not running */ }
           },
           () => {
             // Ignore scan failures (no QR code in frame)
           },
         )
+        startedRef.current = true
         setIsStarting(false)
       } catch (err) {
         const errorMessage =
@@ -52,13 +49,15 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
     return () => {
       const scanner = scannerRef.current
       if (scanner) {
-        scanner
-          .stop()
-          .catch(() => {})
-          .finally(() => {
-            scanner.clear()
-          })
+        try {
+          if (startedRef.current) {
+            scanner.stop().then(() => scanner.clear()).catch(() => {})
+          }
+        } catch {
+          // html5-qrcode stop() throws synchronously if not running
+        }
         scannerRef.current = null
+        startedRef.current = false
       }
     }
   }, [])
@@ -103,7 +102,7 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
         onClick={() => {
           const scanner = scannerRef.current
           if (scanner) {
-            scanner.stop().catch(() => {})
+            try { scanner.stop().catch(() => {}) } catch { /* not running */ }
           }
           onClose()
         }}
