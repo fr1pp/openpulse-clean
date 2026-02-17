@@ -5,6 +5,9 @@
   "type": "module",
   "license": "MIT",
   "packageManager": "pnpm@10.29.3",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "scripts": {
     "dev": "pnpm --parallel -r run dev",
     "dev:client": "pnpm --filter @openpulse/client dev",

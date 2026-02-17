@@ -1,0 +1,38 @@
+{
+  "name": "@openpulse/client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openpulse/shared": "workspace:*",
+    "@tanstack/react-query": "^5",
+    "@tanstack/react-router": "^1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2",
+    "lucide-react": "latest",
+    "radix-ui": "^1.4.3",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwind-merge": "^3",
+    "zod": "^4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4",
+    "@tanstack/router-plugin": "^1",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "^5",
+    "shadcn": "^3.8.5",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "~5.9",
+    "vite": "^7"
+  }
+}
