@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "openpulse",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "dev:client": "pnpm --filter @openpulse/client dev",
+    "dev:server": "pnpm --filter @openpulse/server dev",
+    "build": "pnpm -r run build",
+    "db:push": "pnpm --filter @openpulse/server db:push",
+    "db:seed": "pnpm --filter @openpulse/server db:seed",
+    "typecheck": "pnpm -r run typecheck"
+  }
+}

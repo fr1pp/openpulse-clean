@@ -1,3 +1,9 @@
 .planning/
 node_modules
 REPORT.md
+dist
+*.db
+.env
+.env.*
+drizzle/
+*.gen.ts
