@@ -22,11 +22,10 @@ interface TooltipPayloadEntry {
 function SimpleTooltipContent({
   active,
   payload,
-  dataKey,
 }: {
   active?: boolean
   payload?: TooltipPayloadEntry[]
-  dataKey: string
+  dataKey?: string
 }) {
   if (!active || !payload?.length) return null
   const entry = payload[0]
@@ -91,13 +90,13 @@ export function PatientVitalAreaChart({
         <ReferenceArea
           y1={normalRange.y1}
           y2={normalRange.y2}
-          fill="#10b981"
+          fill="var(--chart-5)"
           fillOpacity={0.06}
           label={{
             value: 'Normal range',
             position: 'insideTopLeft',
             fontSize: 12,
-            fill: '#9ca3af',
+            fill: 'var(--muted-foreground)',
           }}
         />
 
