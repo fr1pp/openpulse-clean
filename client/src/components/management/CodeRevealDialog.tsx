@@ -1,4 +1,4 @@
-import { Copy, Printer } from 'lucide-react'
+import { Copy, Printer, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AccessCard } from '@/components/auth/AccessCard'
 import { Button } from '@/components/ui/button'
@@ -41,11 +41,20 @@ export function CodeRevealDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Patient Access Code</DialogTitle>
-          <DialogDescription>Access code for {patientName}</DialogDescription>
+          <div className="flex items-center gap-2.5 mb-0.5">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500/10 shrink-0">
+              <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <DialogTitle>Patient Access Code</DialogTitle>
+          </div>
+          <DialogDescription>
+            Save or print the access card for{' '}
+            <span className="font-medium text-foreground">{patientName}</span>.
+            The patient will use this to log in.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center py-2">
           <AccessCard
             patientName={patientName}
             accessCode={accessCode}
@@ -64,8 +73,10 @@ export function CodeRevealDialog({
           </Button>
         </div>
 
-        <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Done</Button>
+        <DialogFooter className="pt-1">
+          <Button onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+            Done
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

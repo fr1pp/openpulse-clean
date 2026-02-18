@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { TriangleAlert } from 'lucide-react'
 import { useDeletePatient } from '@/api/mutations/patients'
 import { Input } from '@/components/ui/input'
 import {
@@ -49,20 +50,24 @@ export function DeletePatientDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader className="bg-destructive/10 -mx-6 -mt-6 rounded-t-lg px-6 pt-6 pb-4">
-          <AlertDialogTitle className="text-destructive">
-            Delete Patient
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-destructive/10 shrink-0">
+              <TriangleAlert className="size-5 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-destructive text-lg">
+              Delete Patient
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="text-sm leading-relaxed">
             This action cannot be undone. Patient{' '}
             <span className="font-semibold text-foreground">{fullName}</span>{' '}
-            will be removed from all views and their access code will stop
-            working.
+            will be removed from all views and their access code will stop working.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="space-y-2">
+        <div className="space-y-2 py-1">
           <p className="text-sm text-muted-foreground">
             Type{' '}
             <span className="font-mono font-semibold text-foreground">

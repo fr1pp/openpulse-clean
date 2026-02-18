@@ -37,9 +37,14 @@ interface PatientTableProps {
 export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }: PatientTableProps) {
   if (patients.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-        <Users className="mb-3 size-10 opacity-40" />
-        <p className="text-sm">No patients found</p>
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
+        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-muted/60">
+          <Users className="size-6 opacity-50" />
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-sm font-medium text-foreground/70">No patients found</p>
+          <p className="text-xs text-muted-foreground">Add a patient to get started</p>
+        </div>
       </div>
     )
   }
@@ -61,9 +66,9 @@ export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }
             <TableCell className="font-medium">
               {renderName ? renderName(patient) : `${patient.firstName} ${patient.lastName}`}
             </TableCell>
-            <TableCell>{formatDOB(patient.dateOfBirth)}</TableCell>
-            <TableCell className="capitalize">{patient.gender}</TableCell>
-            <TableCell>{patient.primaryCondition ?? '—'}</TableCell>
+            <TableCell className="text-muted-foreground">{formatDOB(patient.dateOfBirth)}</TableCell>
+            <TableCell className="capitalize text-muted-foreground">{patient.gender}</TableCell>
+            <TableCell className="text-muted-foreground">{patient.primaryCondition ?? '—'}</TableCell>
             <TableCell>
               <div className="flex items-center gap-1">
                 <Tooltip>
@@ -71,10 +76,10 @@ export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8"
+                      className="size-8 text-muted-foreground hover:text-foreground hover:bg-accent"
                       onClick={() => onEdit(patient)}
                     >
-                      <Pencil className="size-4" />
+                      <Pencil className="size-3.5" />
                       <span className="sr-only">Edit patient</span>
                     </Button>
                   </TooltipTrigger>
@@ -86,10 +91,10 @@ export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 hover:text-destructive"
+                        className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         onClick={() => onDelete(patient)}
                       >
-                        <Trash2 className="size-4" />
+                        <Trash2 className="size-3.5" />
                         <span className="sr-only">Delete patient</span>
                       </Button>
                     </TooltipTrigger>

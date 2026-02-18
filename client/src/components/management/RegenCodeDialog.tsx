@@ -1,3 +1,4 @@
+import { RefreshCw } from 'lucide-react'
 import { useRegenAccessCode } from '@/api/mutations/patients'
 import {
   AlertDialog,
@@ -38,10 +39,15 @@ export function RegenCodeDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Regenerate Access Code</AlertDialogTitle>
-          <AlertDialogDescription>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/10 shrink-0">
+              <RefreshCw className="size-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <AlertDialogTitle>Regenerate Access Code</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="text-sm leading-relaxed">
             This will generate a new access code for{' '}
             <span className="font-semibold text-foreground">{patientName}</span>
             . The current code will stop working immediately. Any printed cards

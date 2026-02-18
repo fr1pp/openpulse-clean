@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { UserPlus } from 'lucide-react'
+import { UserPlus, Users } from 'lucide-react'
 import { patientsQueryOptions } from '@/api/queries/patients'
 import type { PatientListItem } from '@/api/queries/patients'
 import { useAdminRole } from '@/hooks/useAdminRole'
@@ -32,27 +32,36 @@ function ManagementPage() {
   } | null>(null)
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Patient Management</h1>
-          <p className="text-muted-foreground">
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 shrink-0">
+              <Users className="size-5 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Patient Management
+            </h1>
+          </div>
+          <p className="text-sm text-muted-foreground pl-[46px]">
             Manage patient records, access codes, and demographics
           </p>
         </div>
         {isAdmin && (
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)} className="shrink-0">
             <UserPlus className="mr-2 h-4 w-4" />
             Add Patient
           </Button>
         )}
       </div>
 
-      <div className="mt-6">
+      {/* Table area */}
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="space-y-2">
+          <div className="p-4 space-y-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-12 rounded" />
+              <Skeleton key={i} className="h-11 rounded-lg" />
             ))}
           </div>
         ) : (
@@ -65,7 +74,7 @@ function ManagementPage() {
               <Link
                 to="/dashboard/patient/$patientId"
                 params={{ patientId: String(patient.id) }}
-                className="font-medium hover:underline"
+                className="font-medium hover:text-primary hover:underline underline-offset-4 transition-colors"
               >
                 {patient.firstName} {patient.lastName}
               </Link>
