@@ -10,22 +10,25 @@ import {
 
 const statusConfig: Record<
   ConnectionState,
-  { color: string; label: string; pulse: boolean }
+  { color: string; label: string; pulse: boolean; hidden: boolean }
 > = {
   connected: {
     color: 'bg-green-500',
     label: 'Live connection active',
     pulse: false,
+    hidden: true, // connected is the normal state — hide the dot
   },
   reconnecting: {
-    color: 'bg-yellow-500',
+    color: 'bg-amber-500',
     label: 'Reconnecting...',
     pulse: true,
+    hidden: false,
   },
   disconnected: {
     color: 'bg-red-500',
     label: 'Connection lost',
     pulse: false,
+    hidden: false,
   },
 }
 
@@ -38,22 +41,26 @@ export function ConnectionIndicator() {
       ? `${config.label} (attempt ${reconnectAttempt})`
       : config.label
 
+  if (config.hidden) {
+    return null
+  }
+
   return (
-    <div className="fixed bottom-4 left-4 z-50">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center justify-center rounded-full bg-black/20 p-1.5 backdrop-blur-sm">
-            <div
-              className={`h-2.5 w-2.5 rounded-full ${config.color} ${config.pulse ? 'animate-pulse' : ''}`}
-              role="status"
-              aria-label={tooltipText}
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="right" sideOffset={8}>
-          {tooltipText}
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className="flex items-center justify-center px-1"
+          aria-label={tooltipText}
+          role="status"
+        >
+          <div
+            className={`h-2 w-2 rounded-full ${config.color} ${config.pulse ? 'animate-pulse' : ''}`}
+          />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={8}>
+        {tooltipText}
+      </TooltipContent>
+    </Tooltip>
   )
 }

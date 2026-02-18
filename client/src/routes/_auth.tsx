@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
-import { AppSidebar } from '@/components/layout/AppSidebar'
-import { SmartHeader } from '@/components/layout/SmartHeader'
+import { TopNav } from '@/components/layout/TopNav'
+import { MobileTabBar } from '@/components/layout/MobileTabBar'
+import { DevPanelDrawer } from '@/components/dev-panel/DevPanelDrawer'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: ({ context, location }) => {
@@ -16,17 +17,18 @@ export const Route = createFileRoute('/_auth')({
 })
 
 function AuthLayout() {
+  const [devPanelOpen, setDevPanelOpen] = useState(false)
+
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <SmartHeader>
-          <SidebarTrigger className="-ml-1" />
-        </SmartHeader>
+    <div className="min-h-screen bg-background">
+      <TopNav onDevPanelOpen={() => setDevPanelOpen(true)} />
+      <div className="pt-14 pb-16 md:pb-0">
         <div className="mx-auto max-w-7xl p-6">
           <Outlet />
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+      <MobileTabBar />
+      <DevPanelDrawer open={devPanelOpen} onOpenChange={setDevPanelOpen} />
+    </div>
   )
 }

@@ -8,13 +8,13 @@ interface DevPanelTriggerProps {
 export function DevPanelTrigger({ onClick }: DevPanelTriggerProps) {
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
-      className="fixed bottom-4 right-4 z-50 rounded-full w-10 h-10 shadow-md bg-background/80 backdrop-blur-sm"
+      className="text-muted-foreground hover:text-foreground"
       onClick={onClick}
       aria-label="Open dev panel"
     >
-      <Terminal className="h-5 w-5" />
+      <Terminal className="h-4 w-4" />
     </Button>
   )
 }
