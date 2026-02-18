@@ -8,13 +8,13 @@ import {
 } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import type { ChartConfig } from '@/components/ui/chart'
-import type { VitalReadingPayload } from '@openpulse/shared'
+import type { VitalReadingPayload, HistoricalReading } from '@openpulse/shared'
 import { thresholdColors } from '@/components/charts/chart-config'
 import { cn } from '@/lib/utils'
 
 export interface VitalLineChartProps {
   /** Chart data array (any window size — component is reusable). */
-  data: VitalReadingPayload[]
+  data: VitalReadingPayload[] | HistoricalReading[]
   /** Field name in data, e.g. 'heartRate'. */
   dataKey: string
   /** Chart config subset for this vital (color + label). */

@@ -13,13 +13,13 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from '@/components/ui/chart'
-import type { VitalReadingPayload } from '@openpulse/shared'
+import type { VitalReadingPayload, HistoricalReading } from '@openpulse/shared'
 import { vitalChartConfig, thresholdColors } from '@/components/charts/chart-config'
 import { cn } from '@/lib/utils'
 
 export interface BPDualLineChartProps {
   /** Chart data array (any window size). */
-  data: VitalReadingPayload[]
+  data: VitalReadingPayload[] | HistoricalReading[]
   /** Horizontal dashed reference lines (systolic thresholds only). */
   thresholdLines: readonly { readonly y: number; readonly label?: string }[]
   /** Y-axis min/max range. */
