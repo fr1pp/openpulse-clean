@@ -10,3 +10,4 @@ dist
 drizzle/
 *.gen.ts
 *.tsbuildinfo
+client/.tanstack/

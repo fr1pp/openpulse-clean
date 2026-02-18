@@ -12,7 +12,6 @@ export const patients = sqliteTable('patients', {
   gender: text('gender').notNull(),
   accessCode: text('access_code').notNull().unique(),
   qrCodeData: text('qr_code_data'),
-  roomNumber: text('room_number'),
   primaryCondition: text('primary_condition'),
   notes: text('notes'),
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
