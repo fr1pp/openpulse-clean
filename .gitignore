@@ -3,7 +3,10 @@ node_modules
 REPORT.md
 dist
 *.db
+*.db-wal
+*.db-shm
 .env
 .env.*
 drizzle/
 *.gen.ts
+*.tsbuildinfo
