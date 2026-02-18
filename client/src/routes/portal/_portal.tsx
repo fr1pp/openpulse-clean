@@ -1,6 +1,6 @@
-import { createFileRoute, redirect, Outlet, useNavigate } from '@tanstack/react-router'
-import { useLogout } from '@/api/mutations/auth'
+import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { useAuth } from '@/hooks/useAuth'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 export const Route = createFileRoute('/portal/_portal')({
   beforeLoad: ({ context, location }) => {
@@ -16,36 +16,26 @@ export const Route = createFileRoute('/portal/_portal')({
 
 function PortalLayout() {
   const { user } = useAuth()
-  const logout = useLogout()
-  const navigate = useNavigate()
-
-  const handleLogout = () => {
-    logout.mutate(undefined, {
-      onSuccess: () => {
-        navigate({ to: '/patient-login' })
-      },
-    })
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 to-white">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-sky-100 px-6 py-4">
+    <div className="min-h-screen bg-background">
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <h1 className="text-xl font-semibold text-teal-800">My Health</h1>
-          <div className="flex items-center gap-4">
+          {/* Portal wordmark — not linked to /dashboard */}
+          <span className="flex items-center font-semibold tracking-tight text-lg text-foreground">
+            <span>open</span>
+            <span className="text-red-500">pulse</span>
+          </span>
+
+          <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
               {user?.firstName} {user?.lastName}
             </span>
-            <button
-              onClick={handleLogout}
-              disabled={logout.isPending}
-              className="min-h-[48px] rounded-xl bg-sky-100 px-4 py-2 text-sm font-medium text-sky-700 hover:bg-sky-200 disabled:opacity-50 transition-colors"
-            >
-              {logout.isPending ? 'Logging out...' : 'Log out'}
-            </button>
+            <ThemeToggle />
           </div>
         </div>
       </header>
+
       <div className="mx-auto max-w-3xl p-6">
         <Outlet />
       </div>

@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useLogout } from '@/api/mutations/auth'
 import { vitalsKeys, fetchLatestVital, historicalVitalsQueryOptions } from '@/api/queries/vitals'
 import {
   evaluateHeartRate,
@@ -92,6 +94,9 @@ function VitalsPage() {
   // Safe: _portal.tsx beforeLoad guards patient role, so user is always set here
   const patientId = user!.id
 
+  const navigate = useNavigate()
+  const logout = useLogout()
+
   const { data: latestData } = useQuery({
     queryKey: vitalsKeys.latest(patientId),
     queryFn: () => fetchLatestVital(patientId),
@@ -107,6 +112,14 @@ function VitalsPage() {
   const toggle = (key: string) =>
     setExpandedVital((prev) => (prev === key ? null : key))
 
+  const handleLogout = () => {
+    logout.mutate(undefined, {
+      onSuccess: () => {
+        navigate({ to: '/patient-login' })
+      },
+    })
+  }
+
   return (
     <div>
       <PortalGreeting firstName={user?.firstName} />
@@ -118,6 +131,7 @@ function VitalsPage() {
             : { level: 'unknown' as const, color: '', bgClass: '', textClass: '', borderClass: '', icon: 'Minus' as const }
 
           const value = latestData ? getValue(latestData) : '--'
+          const timestamp = latestData ? latestData.recordedAt : undefined
           // Build single-key chart config for ChartContainer
           const chartConfig = {
             [chart.dataKey]: vitalChartConfig[chart.dataKey as keyof typeof vitalChartConfig],
@@ -131,6 +145,7 @@ function VitalsPage() {
               statusPhrase={STATUS_PHRASES[threshold.level]}
               actionNudge={ACTION_NUDGE[threshold.level]}
               level={threshold.level}
+              timestamp={timestamp}
               isExpanded={expandedVital === key}
               onToggle={() => toggle(key)}
             >
@@ -150,6 +165,19 @@ function VitalsPage() {
             </PatientVitalCard>
           )
         })}
+      </div>
+
+      {/* Bottom logout — subtle text link, well-spaced from cards for touch safety */}
+      <div className="mt-12 flex justify-center pb-8">
+        <button
+          onClick={handleLogout}
+          disabled={logout.isPending}
+          className="flex items-center gap-2 min-h-[48px] px-4 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors duration-200"
+          aria-label="Log out of patient portal"
+        >
+          <LogOut className="h-4 w-4" />
+          {logout.isPending ? 'Logging out...' : 'Log out'}
+        </button>
       </div>
     </div>
   )
