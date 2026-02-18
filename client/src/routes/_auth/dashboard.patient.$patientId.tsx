@@ -22,20 +22,31 @@ import {
   bpThresholdLines,
   spo2ThresholdLines,
   tempThresholdLines,
-  vitalYDomains,
+  hrBands,
+  bpBands,
+  spo2Bands,
+  tempBands,
+  compactRelativeTime,
 } from '@/components/charts/chart-config'
 import { VitalLineChart } from '@/components/charts/VitalLineChart'
 import { BPDualLineChart } from '@/components/charts/BPDualLineChart'
 import { PatientBreadcrumb } from '@/components/patient-detail/PatientBreadcrumb'
 import { VitalChartPanel } from '@/components/patient-detail/VitalChartPanel'
+import { ChartZoneLegend } from '@/components/patient-detail/ChartZoneLegend'
 import { ViewToggle, type ViewMode } from '@/components/patient-detail/ViewToggle'
 import { TimeRangeSelector } from '@/components/patient-detail/TimeRangeSelector'
 import { useTimeRange } from '@/hooks/useTimeRange'
 import { Skeleton } from '@/components/ui/skeleton'
+import type { TimeRange } from '@openpulse/shared'
 
 export const Route = createFileRoute('/_auth/dashboard/patient/$patientId')({
   component: PatientDetailPage,
 })
+
+/** Min/max range band is only shown for 7d and 30d — not 24h (per locked decision). */
+function showsRangeBand(range: TimeRange): boolean {
+  return range === '7d' || range === '30d'
+}
 
 function PatientDetailPage() {
   const { patientId } = Route.useParams()
@@ -81,6 +92,9 @@ function PatientDetailPage() {
   // Active data: history view uses historical data, real-time uses recent data
   const activeData = view === 'history' ? (historyData ?? []) : chartData
 
+  // Whether to show min/max range band (only for 7d and 30d history view)
+  const rangeBand = view === 'history' && showsRangeBand(range)
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -94,15 +108,20 @@ function PatientDetailPage() {
         )}
       </div>
 
+      {/* Zone legend — shown for both views (bands appear on both) */}
+      <div className="mt-3">
+        <ChartZoneLegend />
+      </div>
+
       {/* Chart grid */}
       {showSkeleton ? (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-[280px] rounded-lg" />
           ))}
         </div>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4">
           {/* Heart Rate */}
           <VitalChartPanel
             icon={Heart}
@@ -115,7 +134,11 @@ function PatientDetailPage() {
               dataKey="heartRate"
               config={{ heartRate: vitalChartConfig.heartRate }}
               thresholdLines={hrThresholdLines}
-              yDomain={vitalYDomains.heartRate}
+              bands={hrBands}
+              evaluator={evaluateHeartRate}
+              syncId="vital-charts"
+              {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
+              {...(rangeBand ? { showRangeBand: true, minKey: 'heartRateMin', maxKey: 'heartRateMax' } : {})}
             />
           </VitalChartPanel>
 
@@ -129,7 +152,17 @@ function PatientDetailPage() {
             <BPDualLineChart
               data={activeData}
               thresholdLines={bpThresholdLines}
-              yDomain={vitalYDomains.bpSystolic}
+              bands={bpBands}
+              evaluator={evaluateBPSystolic}
+              syncId="vital-charts"
+              {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
+              {...(rangeBand ? {
+                showRangeBand: true,
+                systolicMinKey: 'bpSystolicMin',
+                systolicMaxKey: 'bpSystolicMax',
+                diastolicMinKey: 'bpDiastolicMin',
+                diastolicMaxKey: 'bpDiastolicMax',
+              } : {})}
             />
           </VitalChartPanel>
 
@@ -145,7 +178,11 @@ function PatientDetailPage() {
               dataKey="spo2"
               config={{ spo2: vitalChartConfig.spo2 }}
               thresholdLines={spo2ThresholdLines}
-              yDomain={vitalYDomains.spo2}
+              bands={spo2Bands}
+              evaluator={evaluateSpO2}
+              syncId="vital-charts"
+              {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
+              {...(rangeBand ? { showRangeBand: true, minKey: 'spo2Min', maxKey: 'spo2Max' } : {})}
             />
           </VitalChartPanel>
 
@@ -161,7 +198,11 @@ function PatientDetailPage() {
               dataKey="temperature"
               config={{ temperature: vitalChartConfig.temperature }}
               thresholdLines={tempThresholdLines}
-              yDomain={vitalYDomains.temperature}
+              bands={tempBands}
+              evaluator={evaluateTemperature}
+              syncId="vital-charts"
+              {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
+              {...(rangeBand ? { showRangeBand: true, minKey: 'temperatureMin', maxKey: 'temperatureMax' } : {})}
             />
           </VitalChartPanel>
         </div>
