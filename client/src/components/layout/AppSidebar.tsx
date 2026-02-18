@@ -1,5 +1,5 @@
 import { Activity, LayoutDashboard, Users } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +15,8 @@ import {
 import { SidebarUserMenu } from './SidebarUserMenu'
 
 export function AppSidebar() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -42,7 +44,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive tooltip="Dashboard">
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard')} tooltip="Dashboard">
                   <Link to="/dashboard">
                     <LayoutDashboard />
                     <span>Dashboard</span>
@@ -50,9 +52,11 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton disabled tooltip="Patients">
-                  <Users />
-                  <span>Patients</span>
+                <SidebarMenuButton asChild isActive={pathname === '/management'} tooltip="Patients">
+                  <Link to="/management">
+                    <Users />
+                    <span>Patients</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
