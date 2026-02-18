@@ -2,6 +2,7 @@ import { StrictMode, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from 'next-themes'
 import { routeTree } from './routeTree.gen'
 import { queryClient } from './lib/queryClient'
 import { useAuth } from './hooks/useAuth'
@@ -40,9 +41,11 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AuthedRouterProvider />
-      </QueryClientProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <QueryClientProvider client={queryClient}>
+          <AuthedRouterProvider />
+        </QueryClientProvider>
+      </ThemeProvider>
     </StrictMode>,
   )
 }
