@@ -9,6 +9,7 @@ import { seed } from './db/seed.js'
 import { config } from './lib/config.js'
 import { authRouter } from './routes/auth.js'
 import { vitalsRouter } from './routes/vitals.js'
+import { patientsRouter } from './routes/patients.js'
 import { simulatorRouter, setEngine } from './routes/simulator.js'
 import { initSocketServer } from './socket/index.js'
 import { BatchEmitter } from './socket/batch-emitter.js'
@@ -37,6 +38,7 @@ await seed()
 // Routes
 app.use('/api/auth', authRouter)
 app.use('/api/vitals', vitalsRouter)
+app.use('/api/patients', patientsRouter)
 app.use('/api/simulator', simulatorRouter)
 
 // Health check endpoint
