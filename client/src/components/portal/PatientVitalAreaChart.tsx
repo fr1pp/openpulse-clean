@@ -35,10 +35,10 @@ function SimpleTooltipContent({
   if (value == null) return null
 
   return (
-    <div className="rounded-lg bg-white px-3 py-2 text-sm shadow-md border">
-      <span className="font-semibold">{value}</span>
+    <div className="rounded-lg bg-card px-3 py-2 text-sm shadow-md border border-border">
+      <span className="font-semibold text-foreground">{value}</span>
       {recordedAt && (
-        <span className="ml-2 text-slate-500">{compactRelativeTime(recordedAt)} ago</span>
+        <span className="ml-2 text-muted-foreground">{compactRelativeTime(recordedAt)} ago</span>
       )}
     </div>
   )
@@ -112,6 +112,8 @@ export function PatientVitalAreaChart({
           dataKey={dataKey}
           stroke={color}
           strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           fill={`url(#${gradientId})`}
           isAnimationActive={false}
           dot={false}

@@ -166,7 +166,9 @@ export function VitalLineChart({
         type="monotone"
         dataKey={dataKey}
         stroke={lineStroke}
-        strokeWidth={2}
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         dot={false}
         isAnimationActive={false}
         connectNulls

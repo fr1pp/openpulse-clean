@@ -5,11 +5,11 @@ import type { ChartConfig } from '@/components/ui/chart'
  * Used by Phase 4 (patient detail), Phase 5 (historical trends), Phase 7 (patient portal).
  */
 export const vitalChartConfig = {
-  heartRate: { label: 'Heart Rate', color: 'hsl(0, 84%, 60%)' },
-  bpSystolic: { label: 'Systolic', color: 'hsl(262, 80%, 50%)' },
-  bpDiastolic: { label: 'Diastolic', color: 'hsl(262, 60%, 70%)' },
-  spo2: { label: 'SpO2', color: 'hsl(199, 89%, 48%)' },
-  temperature: { label: 'Temperature', color: 'hsl(38, 92%, 50%)' },
+  heartRate: { label: 'Heart Rate', color: 'var(--chart-1)' },
+  bpSystolic: { label: 'Systolic', color: 'var(--chart-2)' },
+  bpDiastolic: { label: 'Diastolic', color: 'var(--chart-2)' },
+  spo2: { label: 'SpO2', color: 'var(--chart-3)' },
+  temperature: { label: 'Temperature', color: 'var(--chart-4)' },
 } satisfies ChartConfig
 
 /** Color tokens for threshold indicators on charts. */
