@@ -60,9 +60,9 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
 
   if (cameraError) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-muted-foreground/25 p-8">
+      <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-border bg-muted/20 p-8">
         <div className="text-center">
-          <p className="text-lg font-medium text-foreground">Camera not available</p>
+          <p className="text-base font-medium text-foreground">Camera not available</p>
           <p className="mt-2 text-sm text-muted-foreground">
             Can't scan? Enter the code printed on your card instead.
           </p>
@@ -70,7 +70,7 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
         <Button
           variant="outline"
           onClick={onClose}
-          className="min-h-[44px] min-w-[44px]"
+          className="min-h-[48px] min-w-[44px]"
         >
           Enter code manually
         </Button>
@@ -79,7 +79,7 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex w-full flex-col items-center gap-4">
       {isStarting && (
         <p className="text-sm text-muted-foreground">Starting camera...</p>
       )}
@@ -90,7 +90,7 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
 
       <div
         id={elementId}
-        className="w-full max-w-[300px] overflow-hidden rounded-xl"
+        className="w-full max-w-[280px] overflow-hidden rounded-xl border border-border bg-muted/20"
       />
 
       <Button
@@ -102,7 +102,7 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
           }
           onClose()
         }}
-        className="min-h-[44px] min-w-[44px]"
+        className="min-h-[48px] min-w-[44px]"
       >
         Cancel
       </Button>

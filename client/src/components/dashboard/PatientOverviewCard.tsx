@@ -10,7 +10,6 @@ import {
   evaluateSpO2,
   evaluateTemperature,
   worstOfFour,
-  STATUS_MAP,
 } from '@/lib/thresholds'
 import type { ThresholdResult } from '@/lib/thresholds'
 import { formatVitalValue, formatBP, calculateAge } from '@/lib/vitals-format'
@@ -21,7 +20,7 @@ export interface PatientOverviewCardProps {
   onClick: () => void
 }
 
-/** Tailwind border color class from threshold status (left border). */
+/** Tailwind border-l color class from threshold status (left accent border). Clinical colors are preserved. */
 function borderColorClass(result: ThresholdResult): string {
   switch (result.level) {
     case 'critical':
@@ -31,21 +30,21 @@ function borderColorClass(result: ThresholdResult): string {
     case 'normal':
       return 'border-l-emerald-500'
     default:
-      return 'border-l-gray-400'
+      return 'border-l-border'
   }
 }
 
-/** Map threshold color name to a CSS hex for sparkline stroke. */
+/** Map threshold level to a CSS variable reference for sparkline stroke. Dark-mode-aware via CSS variables. */
 function sparklineColor(result: ThresholdResult): string {
   switch (result.level) {
     case 'critical':
-      return '#ef4444' // red-500
+      return '#ef4444' // red-500 — clinical color, intentionally hardcoded for clinical clarity
     case 'concerning':
-      return '#f59e0b' // amber-500
+      return '#f59e0b' // amber-500 — clinical color
     case 'normal':
-      return '#10b981' // emerald-500
+      return '#10b981' // emerald-500 — clinical color
     default:
-      return '#9ca3af' // gray-400
+      return 'var(--color-muted-foreground, #9ca3af)'
   }
 }
 
@@ -53,6 +52,9 @@ function sparklineColor(result: ThresholdResult): string {
  * Patient overview card for the dashboard grid.
  * Shows patient info, 4 vital badges with dual encoding, mini sparklines,
  * severity-colored left border, and background flash on value change.
+ *
+ * Warm design: rounded-2xl card with subtle shadow, semantic colors throughout.
+ * Clinical status colors (emerald/amber/red) are intentionally preserved per RTMON-09.
  */
 export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardProps) {
   const { data: latest } = useQuery({
@@ -76,7 +78,7 @@ export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardPro
   const tempResult = evaluateTemperature(latest?.temperature ?? null)
   const worst = worstOfFour([hrResult, bpResult, spo2Result, tempResult])
 
-  // Background flash on vital value change
+  // Background flash on vital value change — uses bg-primary/5 (warm tint)
   const prevValsRef = useRef<string>('')
   const flashRef = useRef<HTMLDivElement>(null)
 
@@ -129,7 +131,10 @@ export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardPro
       ref={flashRef}
       onClick={onClick}
       className={cn(
-        'cursor-pointer rounded-lg border border-l-4 p-4 shadow-sm transition-all hover:shadow-md',
+        // Warm Card styling: rounded-2xl matches card.tsx, bg-card is warm off-white/dark-brown
+        'cursor-pointer rounded-2xl border border-l-4 bg-card p-4',
+        // Subtle shadow with warm hover elevation
+        'shadow-sm transition-all duration-200 hover:shadow-md hover:border-border/80',
         borderColorClass(worst),
       )}
       role="button"
@@ -141,12 +146,12 @@ export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardPro
         }
       }}
     >
-      {/* Header */}
+      {/* Header: patient name and demographic info */}
       <div className="mb-3">
-        <h3 className="text-sm font-semibold leading-tight">
+        <h3 className="text-sm font-semibold leading-tight text-foreground">
           {patient.firstName} {patient.lastName}
         </h3>
-        <p className="text-xs text-muted-foreground">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           {age} y/o &middot; {patient.primaryCondition ?? 'No condition noted'}
         </p>
       </div>

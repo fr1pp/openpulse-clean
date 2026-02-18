@@ -30,7 +30,9 @@ export function VitalBadge({ label, threshold, size = 'default', className }: Vi
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-md font-semibold',
+        // Pill-shaped badge: rounded-full for visual clarity
+        // Clinical colors (bgClass/textClass) are intentionally preserved — WCAG dual encoding via icon + color
+        'inline-flex items-center gap-1 rounded-full font-semibold',
         threshold.bgClass,
         threshold.textClass,
         size === 'sm' ? 'px-1.5 py-0.5 text-xs' : 'px-2 py-1 text-sm',

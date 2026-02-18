@@ -9,27 +9,47 @@ interface AccessCardProps {
 
 export function AccessCard({ patientName, accessCode, qrUrl }: AccessCardProps) {
   return (
-    <div className="print-card flex flex-col items-center gap-4 rounded-xl border-2 border-foreground/20 bg-white p-8 text-center">
-      <h2 className="text-xl font-bold text-foreground">{patientName}</h2>
+    <div className="print-card flex flex-col items-center gap-5 rounded-2xl border border-border bg-card p-8 text-center shadow-sm print:border-2 print:border-black print:bg-white print:shadow-none">
+      {/* Wordmark */}
+      <div className="flex items-center text-lg font-semibold tracking-tight print:text-black">
+        <span className="text-foreground print:text-black">open</span>
+        <span className="text-red-500 print:text-black">pulse</span>
+      </div>
 
+      {/* Divider */}
+      <div className="w-full border-t border-border print:border-black/30" />
+
+      {/* Patient name */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-sm font-medium text-muted-foreground">
-          Your Access Code
+        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground print:text-gray-500">
+          Patient
         </span>
-        <span className="font-mono text-4xl font-bold tracking-widest text-foreground">
+        <h2 className="text-xl font-semibold text-foreground print:text-black">{patientName}</h2>
+      </div>
+
+      {/* QR code */}
+      <div className="rounded-xl border border-border bg-white p-3 print:border-gray-200">
+        <QRCodeSVG
+          value={qrUrl}
+          size={140}
+          level="M"
+          title={`QR code for patient ${patientName}`}
+        />
+      </div>
+
+      {/* Access code */}
+      <div className="flex flex-col items-center gap-2">
+        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground print:text-gray-500">
+          Access Code
+        </span>
+        <span className="rounded-lg border border-border bg-muted/40 px-4 py-2 font-mono text-4xl font-bold tracking-widest text-foreground print:border-black/20 print:bg-gray-50 print:text-black">
           {accessCode}
         </span>
       </div>
 
-      <QRCodeSVG
-        value={qrUrl}
-        size={160}
-        level="M"
-        title={`QR code for patient ${patientName}`}
-      />
-
-      <p className="max-w-[250px] text-sm text-muted-foreground">
-        Scan this code or enter the code above at the login screen
+      {/* Instructions */}
+      <p className="max-w-[240px] text-sm text-muted-foreground print:text-gray-500">
+        Scan the QR code or enter the access code at the patient login screen
       </p>
     </div>
   )

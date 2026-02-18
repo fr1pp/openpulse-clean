@@ -105,7 +105,7 @@ export function PatientCodeInput({
           onPaste={handlePaste}
           onFocus={(e) => e.target.select()}
           disabled={disabled}
-          className="h-16 w-14 rounded-xl border-2 border-input bg-background text-center text-2xl font-bold uppercase text-foreground shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 sm:h-18 sm:w-16 sm:text-3xl"
+          className="h-16 w-14 rounded-xl border-2 border-input bg-muted/50 text-center text-2xl font-bold uppercase text-foreground shadow-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30 disabled:opacity-50 sm:h-[4.5rem] sm:w-16 sm:text-3xl"
         />
       ))}
     </div>

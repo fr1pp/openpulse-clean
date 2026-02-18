@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod/v4'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { useLogin } from '@/api/mutations/auth'
 
@@ -42,19 +42,21 @@ function LoginPage() {
     : null
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-2 text-3xl font-bold tracking-tight text-primary">
-              OpenPulse
+        <Card className="shadow-md">
+          <CardHeader className="pb-4 pt-8 text-center">
+            {/* Wordmark */}
+            <div className="mb-6 flex items-center justify-center text-2xl font-semibold tracking-tight">
+              <span className="text-foreground">open</span>
+              <span className="text-red-500">pulse</span>
             </div>
-            <CardTitle className="text-xl">Healthcare Professional Login</CardTitle>
-            <CardDescription>
-              Sign in to access the monitoring dashboard
-            </CardDescription>
+            <h1 className="text-xl font-semibold text-foreground">Sign in</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Healthcare professional access
+            </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pb-8">
             <LoginForm
               onSubmit={handleSubmit}
               isPending={login.isPending}

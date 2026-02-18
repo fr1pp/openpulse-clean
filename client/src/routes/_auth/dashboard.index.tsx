@@ -65,7 +65,10 @@ function DashboardPage() {
     <div>
       {/* Header with sort toggle */}
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">Patient vitals overview</p>
+        </div>
         <PatientSortToggle sortBy={sortBy} onSortChange={setSortBy} />
       </div>
 
