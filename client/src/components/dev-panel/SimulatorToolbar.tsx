@@ -58,20 +58,20 @@ export function SimulatorToolbar() {
     : '--:--:--'
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-2.5 py-2">
+    <div className="flex items-center gap-2.5 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
       {/* Play / Pause */}
       <Button
         variant={isRunning ? 'default' : 'outline'}
         size="icon"
-        className="h-8 w-8 shrink-0 rounded-md"
+        className="h-8 w-8 shrink-0 rounded-lg"
         onClick={handlePlayPause}
         disabled={pauseMutation.isPending || resumeMutation.isPending}
         aria-label={isRunning ? 'Pause simulation' : 'Resume simulation'}
       >
         {isRunning ? (
-          <Pause className="h-4 w-4" />
+          <Pause className="h-3.5 w-3.5" />
         ) : (
-          <Play className="h-4 w-4" />
+          <Play className="h-3.5 w-3.5" />
         )}
       </Button>
 
@@ -93,7 +93,7 @@ export function SimulatorToolbar() {
       </div>
 
       {/* Sim time */}
-      <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground border-l pl-2.5">
+      <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground border-l border-border/70 pl-2.5">
         <Clock className="h-3.5 w-3.5" />
         <span className="text-xs font-mono tabular-nums">{simTime}</span>
       </div>

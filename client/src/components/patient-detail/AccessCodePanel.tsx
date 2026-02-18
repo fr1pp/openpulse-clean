@@ -28,7 +28,7 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border p-4">
+      <div className="rounded-2xl border bg-card p-4 shadow-sm">
         <Skeleton className="mb-3 h-5 w-32" />
         <div className="flex items-center gap-6">
           <Skeleton className="h-16 w-32" />
@@ -55,10 +55,10 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
 
   return (
     <>
-      <div className="rounded-lg border p-4">
+      <div className="rounded-2xl border bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center gap-2">
           <KeyRound className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold">Access Code</h3>
+          <h3 className="text-sm font-semibold text-foreground">Access Code</h3>
         </div>
 
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">

@@ -52,16 +52,18 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
         side={isDesktop ? 'right' : 'bottom'}
         className={
           isDesktop
-            ? 'sm:max-w-md flex flex-col p-0'
-            : 'max-h-[85vh] flex flex-col p-0 rounded-t-xl'
+            ? 'sm:max-w-md flex flex-col p-0 bg-card'
+            : 'max-h-[85vh] flex flex-col p-0 rounded-t-xl bg-card'
         }
       >
         {/* Header */}
         <SheetHeader className="px-4 pt-4 pb-0 shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div
-              className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                isRunning ? 'bg-emerald-500' : 'bg-amber-500'
+              className={`w-2.5 h-2.5 rounded-full shrink-0 transition-colors ${
+                isRunning
+                  ? 'bg-emerald-500 shadow-[0_0_6px_2px_rgba(16,185,129,0.4)]'
+                  : 'bg-amber-500'
               }`}
             />
             <SheetTitle className="text-base font-semibold">
@@ -112,7 +114,7 @@ export function DevPanelDrawer({ open, onOpenChange }: DevPanelDrawerProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-4 pb-4 pt-2 shrink-0 border-t">
+        <div className="px-4 pb-4 pt-2 shrink-0 border-t border-border/50">
           <Button
             variant={confirmReset ? 'destructive' : 'outline'}
             size="sm"

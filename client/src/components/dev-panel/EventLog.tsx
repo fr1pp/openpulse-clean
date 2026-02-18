@@ -41,8 +41,7 @@ const eventStyles: Record<
   scenario_ended: {
     label: 'end',
     fullLabel: 'Scenario Ended',
-    className:
-      'bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300',
+    className: 'bg-muted text-muted-foreground',
   },
 }
 
@@ -94,7 +93,7 @@ export function EventLog() {
         )}
       </div>
 
-      <ScrollArea className="h-[220px] rounded-lg ring-1 ring-border">
+      <ScrollArea className="h-[220px] rounded-lg ring-1 ring-border bg-card">
         {events.length === 0 ? (
           <div className="flex items-center justify-center h-[220px] text-sm text-muted-foreground">
             No events yet
@@ -110,8 +109,8 @@ export function EventLog() {
                   key={`${event.timestamp}-${event.patientId}-${i}`}
                   className={cn(
                     'cursor-pointer transition-colors',
-                    i % 2 === 1 ? 'bg-muted/40 dark:bg-muted/20' : '',
-                    isExpanded && 'bg-muted/60 dark:bg-muted/30'
+                    i % 2 === 1 ? 'bg-muted/30' : '',
+                    isExpanded && 'bg-accent/60'
                   )}
                   role="button"
                   tabIndex={0}

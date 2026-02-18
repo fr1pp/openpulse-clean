@@ -77,10 +77,10 @@ export function PatientCard({
   return (
     <div
       className={cn(
-        'rounded-xl bg-card shadow-sm transition-all duration-150',
+        'rounded-xl bg-background/60 border transition-all duration-150',
         isExpanded
-          ? 'ring-1 ring-foreground/15 shadow-md'
-          : 'ring-1 ring-border hover:ring-foreground/10'
+          ? 'border-border shadow-sm'
+          : 'border-border/60 hover:border-border/90'
       )}
     >
       {/* Card header */}
@@ -200,7 +200,7 @@ export function PatientCard({
         )}
       >
         <div className="overflow-hidden">
-          <div className="px-3 pb-2.5 pt-2.5 border-t border-border/60">
+          <div className="px-3 pb-2.5 pt-2.5 border-t border-border/50">
             {/* Section header with inline reset */}
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium text-muted-foreground">
