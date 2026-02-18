@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Heart, Activity, Wind, Thermometer } from 'lucide-react'
+import { Heart, Activity, Wind, Thermometer, Pencil } from 'lucide-react'
 import { patientsQueryOptions } from '@/api/queries/patients'
 import {
   recentVitalsQueryOptions,
@@ -35,7 +35,10 @@ import { VitalChartPanel } from '@/components/patient-detail/VitalChartPanel'
 import { ChartZoneLegend } from '@/components/patient-detail/ChartZoneLegend'
 import { ViewToggle, type ViewMode } from '@/components/patient-detail/ViewToggle'
 import { TimeRangeSelector } from '@/components/patient-detail/TimeRangeSelector'
+import { AccessCodePanel } from '@/components/patient-detail/AccessCodePanel'
+import { EditPatientDialog } from '@/components/management/EditPatientDialog'
 import { useTimeRange } from '@/hooks/useTimeRange'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { TimeRange } from '@openpulse/shared'
 
@@ -57,6 +60,9 @@ function PatientDetailPage() {
 
   // Session-persistent time range (defaults to '6h')
   const [range, updateRange] = useTimeRange()
+
+  // Edit dialog state
+  const [editOpen, setEditOpen] = useState(false)
 
   // Patient info for breadcrumb
   const { data: patients, isLoading: patientsLoading } = useQuery(patientsQueryOptions)
@@ -97,8 +103,16 @@ function PatientDetailPage() {
 
   return (
     <div>
-      {/* Breadcrumb */}
-      <PatientBreadcrumb patientName={patientName} />
+      {/* Breadcrumb + edit button */}
+      <div className="flex items-center gap-2">
+        <PatientBreadcrumb patientName={patientName} />
+        {patient && (
+          <Button variant="ghost" size="icon" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-4 w-4" />
+            <span className="sr-only">Edit patient</span>
+          </Button>
+        )}
+      </div>
 
       {/* View toggle + time range selector */}
       <div className="mt-3 flex items-center gap-4">
@@ -111,6 +125,11 @@ function PatientDetailPage() {
       {/* Zone legend — shown for both views (bands appear on both) */}
       <div className="mt-3">
         <ChartZoneLegend />
+      </div>
+
+      {/* Access Code Panel — between legend and charts */}
+      <div className="mt-4">
+        <AccessCodePanel patientId={id} patientName={patientName} />
       </div>
 
       {/* Chart grid */}
@@ -207,6 +226,13 @@ function PatientDetailPage() {
           </VitalChartPanel>
         </div>
       )}
+
+      {/* Edit patient dialog */}
+      <EditPatientDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        patient={patient ?? null}
+      />
     </div>
   )
 }
