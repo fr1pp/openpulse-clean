@@ -7,6 +7,7 @@ export interface AuthPayload {
   role: 'healthcare_pro' | 'patient'
   email?: string
   accessCode?: string
+  adminRole?: 'admin' | 'pro'
 }
 
 declare global {
@@ -42,4 +43,12 @@ export function requireRole(role: 'healthcare_pro' | 'patient') {
     }
     next()
   }
+}
+
+export function requireAdminRole(req: Request, res: Response, next: NextFunction) {
+  if (req.user?.adminRole !== 'admin') {
+    res.status(403).json({ error: 'Admin role required' })
+    return
+  }
+  next()
 }

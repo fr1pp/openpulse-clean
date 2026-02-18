@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { sql, eq } from 'drizzle-orm'
 import { initDb, getDb } from './connection.js'
 import { patients, healthcarePros } from './schema.js'
 import type { InsertPatient, InsertHealthcarePro } from './schema.js'
@@ -68,18 +68,42 @@ const SEED_PATIENTS: InsertPatient[] = [
   },
 ]
 
-// 1 healthcare professional for development/testing
-const SEED_HEALTHCARE_PRO: InsertHealthcarePro = {
-  email: 'admin@openpulse.dev',
-  // bcrypt hash of 'password123' with cost factor 12
-  passwordHash: '$2b$12$SPzxgOy7SKBajzkpqAODc.G6gQAaawNg3b1os4a4YIRQhreyoqAgm',
-  firstName: 'Sarah',
-  lastName: 'Mitchell',
-  role: 'nurse',
-}
+// Two healthcare professionals: one admin, one regular pro
+const SEED_HEALTHCARE_PROS: InsertHealthcarePro[] = [
+  {
+    email: 'admin@openpulse.dev',
+    // bcrypt hash of 'password123' with cost factor 12
+    passwordHash: '$2b$12$SPzxgOy7SKBajzkpqAODc.G6gQAaawNg3b1os4a4YIRQhreyoqAgm',
+    firstName: 'Sarah',
+    lastName: 'Mitchell',
+    role: 'admin',
+  },
+  {
+    email: 'nurse@openpulse.dev',
+    // bcrypt hash of 'password123' with cost factor 12
+    passwordHash: '$2b$12$SPzxgOy7SKBajzkpqAODc.G6gQAaawNg3b1os4a4YIRQhreyoqAgm',
+    firstName: 'David',
+    lastName: 'Park',
+    role: 'pro',
+  },
+]
 
 export async function seed() {
   const db = getDb()
+
+  // Migrate any existing rows with legacy 'nurse' role to 'admin'
+  // This ensures existing DBs work without deletion
+  db.update(healthcarePros).set({ role: 'admin' }).where(eq(healthcarePros.role, 'nurse')).run()
+
+  // Check if healthcare pros table already has data (idempotent)
+  const existingPros = db.select({ count: sql<number>`COUNT(*)` }).from(healthcarePros).get()
+  if (existingPros && existingPros.count > 0) {
+    console.log(`Seed skipped: ${existingPros.count} healthcare pros already exist. If you need to re-seed, delete the DB file and restart.`)
+  } else {
+    // Insert both healthcare pros
+    db.insert(healthcarePros).values(SEED_HEALTHCARE_PROS).run()
+    console.log(`Seeded ${SEED_HEALTHCARE_PROS.length} healthcare professionals`)
+  }
 
   // Check if patients table already has data (idempotent)
   const existingPatients = db.select({ count: sql<number>`COUNT(*)` }).from(patients).get()
@@ -91,10 +115,6 @@ export async function seed() {
   // Insert all 6 patients
   db.insert(patients).values(SEED_PATIENTS).run()
   console.log(`Seeded ${SEED_PATIENTS.length} patients`)
-
-  // Insert healthcare pro
-  db.insert(healthcarePros).values(SEED_HEALTHCARE_PRO).run()
-  console.log(`Seeded 1 healthcare professional (${SEED_HEALTHCARE_PRO.email})`)
 }
 
 // Run directly as a script

@@ -30,7 +30,7 @@ export const healthcarePros = sqliteTable('healthcare_pros', {
   passwordHash: text('password_hash').notNull(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
-  role: text('role').notNull().default('nurse'),
+  role: text('role').notNull().default('pro'),
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
   createdAt: text('created_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text('updated_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),

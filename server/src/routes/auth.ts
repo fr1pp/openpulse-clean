@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
   }
 
   const token = jwt.sign(
-    { sub: user.id, role: 'healthcare_pro', email: user.email },
+    { sub: user.id, role: 'healthcare_pro', email: user.email, adminRole: user.role },
     config.jwtSecret,
     { expiresIn: '24h' }
   )
@@ -46,6 +46,7 @@ router.post('/login', async (req, res) => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    adminRole: user.role,
   })
 })
 
@@ -103,6 +104,7 @@ router.get('/me', requireAuth, (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      adminRole: user.role,
     })
   } else {
     const patient = db.select().from(patients)
