@@ -24,23 +24,25 @@ export const ACTION_NUDGE: Record<ThresholdLevel | 'unknown', string | undefined
 
 /**
  * Card background and border tint classes per threshold level.
- * Subtle color shift communicates status without alarm.
+ * Warm palette equivalents with dark mode variants.
+ * Clinical colors (emerald/amber/red) intentionally hardcoded — not CSS variables —
+ * for WCAG dual encoding and clinical clarity across themes.
  */
 export const CARD_TINT: Record<ThresholdLevel | 'unknown', string> = {
-  normal: 'bg-emerald-50 border-emerald-200',
-  concerning: 'bg-amber-50 border-amber-200',
-  critical: 'bg-red-50 border-red-200',
-  unknown: 'bg-slate-50 border-slate-200',
+  normal: 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/50',
+  concerning: 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/50',
+  critical: 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800/50',
+  unknown: 'bg-card border-border',
 }
 
 /**
  * Status phrase text color per threshold level.
  */
 export const STATUS_TEXT_COLOR: Record<ThresholdLevel | 'unknown', string> = {
-  normal: 'text-emerald-700',
-  concerning: 'text-amber-700',
-  critical: 'text-red-700',
-  unknown: 'text-slate-500',
+  normal: 'text-emerald-700 dark:text-emerald-400',
+  concerning: 'text-amber-700 dark:text-amber-400',
+  critical: 'text-red-700 dark:text-red-400',
+  unknown: 'text-muted-foreground',
 }
 
 /**
