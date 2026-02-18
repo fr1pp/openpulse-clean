@@ -1,3 +1,4 @@
+import React from 'react'
 import { Pencil, Trash2, Users } from 'lucide-react'
 import type { PatientListItem } from '@/api/queries/patients'
 import {
@@ -30,9 +31,10 @@ interface PatientTableProps {
   isAdmin: boolean
   onEdit: (patient: PatientListItem) => void
   onDelete: (patient: PatientListItem) => void
+  renderName?: (patient: PatientListItem) => React.ReactNode
 }
 
-export function PatientTable({ patients, isAdmin, onEdit, onDelete }: PatientTableProps) {
+export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }: PatientTableProps) {
   if (patients.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
@@ -57,7 +59,7 @@ export function PatientTable({ patients, isAdmin, onEdit, onDelete }: PatientTab
         {patients.map((patient) => (
           <TableRow key={patient.id}>
             <TableCell className="font-medium">
-              {patient.firstName} {patient.lastName}
+              {renderName ? renderName(patient) : `${patient.firstName} ${patient.lastName}`}
             </TableCell>
             <TableCell>{formatDOB(patient.dateOfBirth)}</TableCell>
             <TableCell className="capitalize">{patient.gender}</TableCell>

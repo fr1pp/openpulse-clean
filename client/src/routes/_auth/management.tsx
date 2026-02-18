@@ -1,9 +1,16 @@
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { UserPlus } from 'lucide-react'
 import { patientsQueryOptions } from '@/api/queries/patients'
+import type { PatientListItem } from '@/api/queries/patients'
 import { useAdminRole } from '@/hooks/useAdminRole'
 import { PatientTable } from '@/components/management/PatientTable'
+import { CreatePatientDialog } from '@/components/management/CreatePatientDialog'
+import { EditPatientDialog } from '@/components/management/EditPatientDialog'
+import { DeletePatientDialog } from '@/components/management/DeletePatientDialog'
+import { CodeRevealDialog } from '@/components/management/CodeRevealDialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -15,10 +22,14 @@ function ManagementPage() {
   const { data: patients, isLoading } = useQuery(patientsQueryOptions)
   const isAdmin = useAdminRole()
 
-  // State for dialogs (will be wired in Plan 06-03)
-  // const [createOpen, setCreateOpen] = useState(false)
-  // const [editPatient, setEditPatient] = useState<PatientListItem | null>(null)
-  // const [deletePatient, setDeletePatient] = useState<PatientListItem | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editPatient, setEditPatient] = useState<PatientListItem | null>(null)
+  const [deletePatient, setDeletePatient] = useState<PatientListItem | null>(null)
+  const [revealData, setRevealData] = useState<{
+    patientName: string
+    accessCode: string
+    qrCodeData: string
+  } | null>(null)
 
   return (
     <div>
@@ -30,7 +41,7 @@ function ManagementPage() {
           </p>
         </div>
         {isAdmin && (
-          <Button>
+          <Button onClick={() => setCreateOpen(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
             Add Patient
           </Button>
@@ -48,11 +59,49 @@ function ManagementPage() {
           <PatientTable
             patients={patients ?? []}
             isAdmin={isAdmin}
-            onEdit={() => {/* Plan 06-03 */}}
-            onDelete={() => {/* Plan 06-03 */}}
+            onEdit={(p) => setEditPatient(p)}
+            onDelete={(p) => setDeletePatient(p)}
+            renderName={(patient) => (
+              <Link
+                to="/dashboard/patient/$patientId"
+                params={{ patientId: String(patient.id) }}
+                className="font-medium hover:underline"
+              >
+                {patient.firstName} {patient.lastName}
+              </Link>
+            )}
           />
         )}
       </div>
+
+      <CreatePatientDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={(p) =>
+          setRevealData({
+            patientName: `${p.firstName} ${p.lastName}`,
+            accessCode: p.accessCode,
+            qrCodeData: p.qrCodeData,
+          })
+        }
+      />
+      <EditPatientDialog
+        open={!!editPatient}
+        onOpenChange={(open) => !open && setEditPatient(null)}
+        patient={editPatient}
+      />
+      <DeletePatientDialog
+        open={!!deletePatient}
+        onOpenChange={(open) => !open && setDeletePatient(null)}
+        patient={deletePatient}
+      />
+      <CodeRevealDialog
+        open={!!revealData}
+        onOpenChange={(open) => !open && setRevealData(null)}
+        patientName={revealData?.patientName ?? ''}
+        accessCode={revealData?.accessCode ?? ''}
+        qrCodeData={revealData?.qrCodeData ?? ''}
+      />
     </div>
   )
 }
