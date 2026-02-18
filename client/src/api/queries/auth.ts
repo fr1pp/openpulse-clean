@@ -7,6 +7,7 @@ export interface AuthUser {
   lastName: string
   email?: string
   accessCode?: string
+  adminRole?: 'admin' | 'pro'
 }
 
 export const authKeys = {

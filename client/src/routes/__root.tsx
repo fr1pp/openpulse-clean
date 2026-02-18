@@ -8,6 +8,7 @@ import { ConnectionIndicator } from '@/components/connection/ConnectionIndicator
 import { DevPanelTrigger } from '@/components/dev-panel/DevPanelTrigger'
 import { DevPanelDrawer } from '@/components/dev-panel/DevPanelDrawer'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { Toaster } from '@/components/ui/sonner'
 
 export interface RouterContext {
   auth: AuthState
@@ -53,6 +54,7 @@ function RootComponent() {
         <main>
           <Outlet />
         </main>
+        <Toaster />
       </div>
     </TooltipProvider>
   )

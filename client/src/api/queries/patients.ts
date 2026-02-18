@@ -9,9 +9,19 @@ export interface PatientListItem {
   primaryCondition: string | null
 }
 
+export interface PatientDetail extends PatientListItem {
+  accessCode: string
+  qrCodeData: string | null
+  notes: string | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export const patientKeys = {
   all: ['patients'] as const,
   list: () => ['patients', 'list'] as const,
+  detail: (id: number) => ['patients', 'detail', id] as const,
 }
 
 export async function fetchPatients(): Promise<PatientListItem[]> {
@@ -27,3 +37,16 @@ export const patientsQueryOptions = queryOptions({
   queryFn: fetchPatients,
   staleTime: 5 * 60 * 1000, // 5 min — patient list rarely changes
 })
+
+export async function fetchPatientDetail(id: number): Promise<PatientDetail> {
+  const res = await fetch(`/api/patients/${id}`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Failed to fetch patient')
+  return res.json()
+}
+
+export function patientDetailQueryOptions(id: number) {
+  return queryOptions({
+    queryKey: patientKeys.detail(id),
+    queryFn: () => fetchPatientDetail(id),
+  })
+}
