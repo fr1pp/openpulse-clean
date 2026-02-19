@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { TopNav } from '@/components/layout/TopNav'
-import { MobileTabBar } from '@/components/layout/MobileTabBar'
 import { DevPanelDrawer } from '@/components/dev-panel/DevPanelDrawer'
 
 export const Route = createFileRoute('/_auth')({
@@ -22,12 +21,11 @@ function AuthLayout() {
   return (
     <div className="min-h-screen bg-background">
       <TopNav onDevPanelOpen={() => setDevPanelOpen(true)} />
-      <div className="pt-14 pb-16 md:pb-0">
+      <div className="pt-14 pb-0">
         <div className="mx-auto max-w-7xl p-6">
           <Outlet />
         </div>
       </div>
-      <MobileTabBar />
       <DevPanelDrawer open={devPanelOpen} onOpenChange={setDevPanelOpen} />
     </div>
   )
