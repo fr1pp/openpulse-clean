@@ -8,17 +8,21 @@ export function useScrollDirection(threshold = 10): ScrollDirection {
   const ticking = useRef(false)
 
   useEffect(() => {
-    lastScrollY.current = window.scrollY
+    lastScrollY.current = Math.max(0, window.scrollY)
 
     const updateDirection = () => {
-      const scrollY = window.scrollY
+      const scrollY = Math.max(0, window.scrollY)
+      if (scrollY < 64) {
+        setDirection('up')
+        lastScrollY.current = scrollY
+        ticking.current = false
+        return
+      }
       const diff = scrollY - lastScrollY.current
-
       if (Math.abs(diff) >= threshold) {
         setDirection(diff > 0 ? 'down' : 'up')
         lastScrollY.current = scrollY
       }
-
       ticking.current = false
     }
 
