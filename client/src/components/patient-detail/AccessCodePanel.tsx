@@ -61,7 +61,7 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
           <h3 className="text-sm font-semibold text-foreground">Access Code</h3>
         </div>
 
-        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
           {/* Code display */}
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground">Patient Code</span>
@@ -81,12 +81,12 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
           )}
 
           {/* Action buttons */}
-          <div className="flex flex-wrap gap-2 sm:ml-auto">
-            <Button variant="outline" size="sm" onClick={handleCopy}>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:ml-auto">
+            <Button variant="outline" size="sm" onClick={handleCopy} className="w-full sm:w-auto">
               <Copy className="mr-2 h-3.5 w-3.5" />
               Copy Code
             </Button>
-            <Button variant="outline" size="sm" onClick={handlePrint}>
+            <Button variant="outline" size="sm" onClick={handlePrint} className="w-full sm:w-auto">
               <Printer className="mr-2 h-3.5 w-3.5" />
               Print
             </Button>
@@ -95,6 +95,7 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
                 variant="outline"
                 size="sm"
                 onClick={() => setRegenOpen(true)}
+                className="w-full sm:w-auto"
               >
                 <RefreshCw className="mr-2 h-3.5 w-3.5" />
                 Regenerate

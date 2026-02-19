@@ -84,10 +84,6 @@ export function QrScanner({ onScan, onError, onClose }: QrScannerProps) {
         <p className="text-sm text-muted-foreground">Starting camera...</p>
       )}
 
-      <p className="text-center text-sm text-muted-foreground">
-        Point your camera at the QR code on your card
-      </p>
-
       <div
         id={elementId}
         className="w-full max-w-[280px] overflow-hidden rounded-xl border border-border bg-muted/20"
