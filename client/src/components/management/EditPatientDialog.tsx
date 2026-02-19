@@ -59,7 +59,7 @@ export function EditPatientDialog({
 
   const form = useForm<EditPatientFormValues>({
     resolver: zodResolver(editPatientSchema),
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -97,7 +97,7 @@ export function EditPatientDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="firstName"
@@ -127,7 +127,7 @@ export function EditPatientDialog({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="dateOfBirth"

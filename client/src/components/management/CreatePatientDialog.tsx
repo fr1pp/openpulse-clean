@@ -57,7 +57,7 @@ export function CreatePatientDialog({
 
   const form = useForm<CreatePatientFormValues>({
     resolver: zodResolver(createPatientSchema),
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -82,7 +82,9 @@ export function CreatePatientDialog({
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) {
+        if (isOpen) {
+          form.reset()
+        } else {
           form.reset()
         }
         onOpenChange(isOpen)
@@ -98,7 +100,7 @@ export function CreatePatientDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="firstName"
@@ -128,7 +130,7 @@ export function CreatePatientDialog({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="dateOfBirth"
