@@ -28,7 +28,7 @@ export function AccessCard({ patientName, accessCode, qrUrl }: AccessCardProps) 
       </div>
 
       {/* QR code */}
-      <div className="rounded-xl border border-border bg-white p-3 print:border-gray-200">
+      <div className="rounded-xl border border-border bg-background p-3 print:bg-white print:border-gray-200">
         <QRCodeSVG
           value={qrUrl}
           size={140}
