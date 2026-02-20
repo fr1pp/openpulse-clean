@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { LogOut } from 'lucide-react'
@@ -14,80 +13,207 @@ import {
 import { formatVitalValue, formatBP } from '@/lib/vitals-format'
 import { PortalGreeting } from '@/components/portal/PortalGreeting'
 import { PatientVitalCard } from '@/components/portal/PatientVitalCard'
-import { PatientVitalAreaChart } from '@/components/portal/PatientVitalAreaChart'
-import { STATUS_PHRASES, ACTION_NUDGE, VITAL_LABELS } from '@/components/portal/portal-status'
-import { vitalChartConfig, vitalYDomains } from '@/components/charts/chart-config'
-import type { VitalReadingPayload } from '@openpulse/shared'
+import { VITAL_LABELS } from '@/components/portal/portal-status'
+import {
+  vitalChartConfig,
+  vitalYDomains,
+  hrThresholdLines,
+  bpThresholdLines,
+  spo2ThresholdLines,
+  tempThresholdLines,
+  hrBands,
+  bpBands,
+  spo2Bands,
+  tempBands,
+  compactRelativeTime,
+} from '@/components/charts/chart-config'
+import { VitalLineChart } from '@/components/charts/VitalLineChart'
+import { BPDualLineChart } from '@/components/charts/BPDualLineChart'
+import { ChartTimeRangeSelector } from '@/components/charts/ChartTimeRangeSelector'
+import { useTimeRange } from '@/hooks/useTimeRange'
+import type { VitalReadingPayload, TimeRange } from '@openpulse/shared'
 
 export const Route = createFileRoute('/portal/_portal/vitals')({
   component: VitalsPage,
 })
 
-interface ChartConfig {
-  dataKey: string
-  color: string
-  yDomain: [number, number]
-  normalRange: { y1: number; y2: number }
+// -----------------------------------------------------------------------
+// Per-vital section components (one hook call per component)
+// -----------------------------------------------------------------------
+
+interface HeartRateSectionProps {
+  patientId: number
+  latestData: VitalReadingPayload | null | undefined
 }
 
-interface VitalConfig {
-  key: string
-  label: string
-  getValue: (d: VitalReadingPayload) => string
-  getThreshold: (d: VitalReadingPayload) => ReturnType<typeof evaluateHeartRate>
-  chart: ChartConfig
+function HeartRateSection({ patientId, latestData }: HeartRateSectionProps) {
+  const [range, setRange] = useTimeRange('openpulse-time-range-portal-heartRate')
+  const { data: historyData } = useQuery(historicalVitalsQueryOptions(patientId, range))
+
+  const threshold = latestData
+    ? evaluateHeartRate(latestData.heartRate)
+    : { level: 'unknown' as const, valueTextClass: 'text-foreground', color: '', bgClass: '', textClass: '', borderClass: '', icon: 'Minus' as const }
+
+  const value = latestData ? formatVitalValue('heartRate', latestData.heartRate) : '--'
+
+  return (
+    <PatientVitalCard
+      label={VITAL_LABELS.heartRate}
+      value={value}
+      valueTextClass={threshold.valueTextClass}
+      level={threshold.level}
+      timestamp={latestData?.recordedAt}
+    >
+      <ChartTimeRangeSelector
+        value={range}
+        onChange={setRange as (r: TimeRange) => void}
+        className="mb-3 ml-4"
+      />
+      <VitalLineChart
+        data={historyData ?? []}
+        dataKey="heartRate"
+        config={{ heartRate: vitalChartConfig.heartRate }}
+        thresholdLines={hrThresholdLines}
+        bands={hrBands}
+        yDomain={vitalYDomains.heartRate}
+        evaluator={evaluateHeartRate}
+        tickFormatter={compactRelativeTime}
+        className="h-[180px]"
+      />
+    </PatientVitalCard>
+  )
 }
 
-const VITALS_CONFIG: VitalConfig[] = [
-  {
-    key: 'heartRate',
-    label: VITAL_LABELS.heartRate,
-    getValue: (d) => formatVitalValue('heartRate', d.heartRate),
-    getThreshold: (d) => evaluateHeartRate(d.heartRate),
-    chart: {
-      dataKey: 'heartRate',
-      color: vitalChartConfig.heartRate.color,
-      yDomain: vitalYDomains.heartRate,
-      normalRange: { y1: 60, y2: 100 },
-    },
-  },
-  {
-    key: 'bloodPressure',
-    label: VITAL_LABELS.bloodPressure,
-    getValue: (d) => formatBP(d.bpSystolic, d.bpDiastolic),
-    getThreshold: (d) => evaluateBPSystolic(d.bpSystolic),
-    chart: {
-      dataKey: 'bpSystolic',
-      color: vitalChartConfig.bpSystolic.color,
-      yDomain: vitalYDomains.bpSystolic,
-      normalRange: { y1: 90, y2: 140 },
-    },
-  },
-  {
-    key: 'spo2',
-    label: VITAL_LABELS.spo2,
-    getValue: (d) => formatVitalValue('spo2', d.spo2),
-    getThreshold: (d) => evaluateSpO2(d.spo2),
-    chart: {
-      dataKey: 'spo2',
-      color: vitalChartConfig.spo2.color,
-      yDomain: vitalYDomains.spo2,
-      normalRange: { y1: 95, y2: 100 },
-    },
-  },
-  {
-    key: 'temperature',
-    label: VITAL_LABELS.temperature,
-    getValue: (d) => formatVitalValue('temperature', d.temperature),
-    getThreshold: (d) => evaluateTemperature(d.temperature),
-    chart: {
-      dataKey: 'temperature',
-      color: vitalChartConfig.temperature.color,
-      yDomain: vitalYDomains.temperature,
-      normalRange: { y1: 36.1, y2: 37.2 },
-    },
-  },
-]
+interface BloodPressureSectionProps {
+  patientId: number
+  latestData: VitalReadingPayload | null | undefined
+}
+
+function BloodPressureSection({ patientId, latestData }: BloodPressureSectionProps) {
+  const [range, setRange] = useTimeRange('openpulse-time-range-portal-bloodPressure')
+  const { data: historyData } = useQuery(historicalVitalsQueryOptions(patientId, range))
+
+  const threshold = latestData
+    ? evaluateBPSystolic(latestData.bpSystolic)
+    : { level: 'unknown' as const, valueTextClass: 'text-foreground', color: '', bgClass: '', textClass: '', borderClass: '', icon: 'Minus' as const }
+
+  const value = latestData ? formatBP(latestData.bpSystolic, latestData.bpDiastolic) : '--'
+
+  return (
+    <PatientVitalCard
+      label={VITAL_LABELS.bloodPressure}
+      value={value}
+      valueTextClass={threshold.valueTextClass}
+      level={threshold.level}
+      timestamp={latestData?.recordedAt}
+    >
+      <ChartTimeRangeSelector
+        value={range}
+        onChange={setRange as (r: TimeRange) => void}
+        className="mb-3 ml-4"
+      />
+      <BPDualLineChart
+        data={historyData ?? []}
+        thresholdLines={bpThresholdLines}
+        bands={bpBands}
+        yDomain={vitalYDomains.bpSystolic}
+        evaluator={evaluateBPSystolic}
+        tickFormatter={compactRelativeTime}
+        className="h-[180px]"
+      />
+    </PatientVitalCard>
+  )
+}
+
+interface SpO2SectionProps {
+  patientId: number
+  latestData: VitalReadingPayload | null | undefined
+}
+
+function SpO2Section({ patientId, latestData }: SpO2SectionProps) {
+  const [range, setRange] = useTimeRange('openpulse-time-range-portal-spo2')
+  const { data: historyData } = useQuery(historicalVitalsQueryOptions(patientId, range))
+
+  const threshold = latestData
+    ? evaluateSpO2(latestData.spo2)
+    : { level: 'unknown' as const, valueTextClass: 'text-foreground', color: '', bgClass: '', textClass: '', borderClass: '', icon: 'Minus' as const }
+
+  const value = latestData ? formatVitalValue('spo2', latestData.spo2) : '--'
+
+  return (
+    <PatientVitalCard
+      label={VITAL_LABELS.spo2}
+      value={value}
+      valueTextClass={threshold.valueTextClass}
+      level={threshold.level}
+      timestamp={latestData?.recordedAt}
+    >
+      <ChartTimeRangeSelector
+        value={range}
+        onChange={setRange as (r: TimeRange) => void}
+        className="mb-3 ml-4"
+      />
+      <VitalLineChart
+        data={historyData ?? []}
+        dataKey="spo2"
+        config={{ spo2: vitalChartConfig.spo2 }}
+        thresholdLines={spo2ThresholdLines}
+        bands={spo2Bands}
+        yDomain={vitalYDomains.spo2}
+        evaluator={evaluateSpO2}
+        tickFormatter={compactRelativeTime}
+        className="h-[180px]"
+      />
+    </PatientVitalCard>
+  )
+}
+
+interface TemperatureSectionProps {
+  patientId: number
+  latestData: VitalReadingPayload | null | undefined
+}
+
+function TemperatureSection({ patientId, latestData }: TemperatureSectionProps) {
+  const [range, setRange] = useTimeRange('openpulse-time-range-portal-temperature')
+  const { data: historyData } = useQuery(historicalVitalsQueryOptions(patientId, range))
+
+  const threshold = latestData
+    ? evaluateTemperature(latestData.temperature)
+    : { level: 'unknown' as const, valueTextClass: 'text-foreground', color: '', bgClass: '', textClass: '', borderClass: '', icon: 'Minus' as const }
+
+  const value = latestData ? formatVitalValue('temperature', latestData.temperature) : '--'
+
+  return (
+    <PatientVitalCard
+      label={VITAL_LABELS.temperature}
+      value={value}
+      valueTextClass={threshold.valueTextClass}
+      level={threshold.level}
+      timestamp={latestData?.recordedAt}
+    >
+      <ChartTimeRangeSelector
+        value={range}
+        onChange={setRange as (r: TimeRange) => void}
+        className="mb-3 ml-4"
+      />
+      <VitalLineChart
+        data={historyData ?? []}
+        dataKey="temperature"
+        config={{ temperature: vitalChartConfig.temperature }}
+        thresholdLines={tempThresholdLines}
+        bands={tempBands}
+        yDomain={vitalYDomains.temperature}
+        evaluator={evaluateTemperature}
+        tickFormatter={compactRelativeTime}
+        className="h-[180px]"
+      />
+    </PatientVitalCard>
+  )
+}
+
+// -----------------------------------------------------------------------
+// Main vitals page
+// -----------------------------------------------------------------------
 
 function VitalsPage() {
   const { user } = useAuth()
@@ -104,14 +230,6 @@ function VitalsPage() {
     refetchOnWindowFocus: false,
   })
 
-  // 24h historical data — always fetched for pre-fetching, chart renders lazily on expand
-  const { data: historyData } = useQuery(historicalVitalsQueryOptions(patientId, '24h'))
-
-  const [expandedVital, setExpandedVital] = useState<string | null>(null)
-
-  const toggle = (key: string) =>
-    setExpandedVital((prev) => (prev === key ? null : key))
-
   const handleLogout = () => {
     logout.mutate(undefined, {
       onSuccess: () => {
@@ -124,47 +242,12 @@ function VitalsPage() {
     <div>
       <PortalGreeting firstName={user?.firstName} />
 
+      {/* Always-visible vital cards with per-chart time range selectors */}
       <div className="flex flex-col gap-4">
-        {VITALS_CONFIG.map(({ key, label, getValue, getThreshold, chart }) => {
-          const threshold = latestData
-            ? getThreshold(latestData)
-            : { level: 'unknown' as const, color: '', bgClass: '', textClass: '', borderClass: '', icon: 'Minus' as const }
-
-          const value = latestData ? getValue(latestData) : '--'
-          const timestamp = latestData ? latestData.recordedAt : undefined
-          // Build single-key chart config for ChartContainer
-          const chartConfig = {
-            [chart.dataKey]: vitalChartConfig[chart.dataKey as keyof typeof vitalChartConfig],
-          }
-
-          return (
-            <PatientVitalCard
-              key={key}
-              label={label}
-              value={value}
-              statusPhrase={STATUS_PHRASES[threshold.level]}
-              actionNudge={ACTION_NUDGE[threshold.level]}
-              level={threshold.level}
-              timestamp={timestamp}
-              isExpanded={expandedVital === key}
-              onToggle={() => toggle(key)}
-            >
-              {/* Lazy rendering: only the expanded card's chart enters the DOM */}
-              {expandedVital === key && historyData && (
-                <div className="pt-4">
-                  <PatientVitalAreaChart
-                    data={historyData}
-                    dataKey={chart.dataKey}
-                    color={chart.color}
-                    yDomain={chart.yDomain}
-                    normalRange={chart.normalRange}
-                    config={chartConfig}
-                  />
-                </div>
-              )}
-            </PatientVitalCard>
-          )
-        })}
+        <HeartRateSection patientId={patientId} latestData={latestData} />
+        <BloodPressureSection patientId={patientId} latestData={latestData} />
+        <SpO2Section patientId={patientId} latestData={latestData} />
+        <TemperatureSection patientId={patientId} latestData={latestData} />
       </div>
 
       {/* Bottom logout — subtle text link, well-spaced from cards for touch safety */}
