@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from '@/components/ui/skeleton'
+import { ChartTimeRangeSelector } from '@/components/charts/ChartTimeRangeSelector'
+import { useTimeRange } from '@/hooks/useTimeRange'
+import { historicalVitalsQueryOptions } from '@/api/queries/vitals'
 import type { ThresholdResult } from '@/lib/thresholds'
-import { VitalBadge } from '@/components/dashboard/VitalBadge'
-import { cn } from '@/lib/utils'
+import type { VitalReadingPayload, HistoricalReading } from '@openpulse/shared'
 
 export interface VitalChartPanelProps {
   /** Lucide icon component for the panel header. */
@@ -10,58 +13,77 @@ export interface VitalChartPanelProps {
   label: string
   /** Formatted current value (e.g. '78 bpm'). */
   currentValue: string
-  /** Threshold evaluation for the current value badge and border pulse. */
+  /** Threshold evaluation for the current value — drives the colored text. */
   threshold: ThresholdResult
-  /** The chart component to render below the header. */
-  children: React.ReactNode
+  /** Patient ID for fetching historical data. */
+  patientId: number
+  /** Vital key used for per-chart sessionStorage key (e.g. 'heartRate'). */
+  storageKey: string
+  /**
+   * Render function receiving the data to render as chart children.
+   * Called with both recentData and historyData so the parent can pick.
+   */
+  renderChart: (
+    activeData: VitalReadingPayload[] | HistoricalReading[],
+    range: string,
+    isHistory: boolean,
+  ) => React.ReactNode
 }
 
 /**
- * Chart panel wrapper: icon + label on left, current value badge on right, chart below.
- * Warm card styling: rounded-2xl bg-card shadow-sm.
- * Border briefly pulses (threshold.borderClass) when the vital crosses a threshold boundary.
+ * Self-contained chart panel with Apple Health minimal styling.
+ * Owns its time range selection and historical data fetching.
+ * Header: icon + label on left, colored text vital value on right.
+ * Renders ChartTimeRangeSelector below the header row.
+ * No border flash effect — clean static card.
  */
 export function VitalChartPanel({
   icon: Icon,
   label,
   currentValue,
   threshold,
-  children,
+  patientId,
+  storageKey,
+  renderChart,
 }: VitalChartPanelProps) {
-  const prevLevelRef = useRef<string | null>(null)
-  const [flash, setFlash] = useState(false)
+  const [range, updateRange] = useTimeRange(storageKey)
 
-  useEffect(() => {
-    const prev = prevLevelRef.current
-    prevLevelRef.current = threshold.level
+  // Always fetch historical data for the selected range
+  const { data: historyData, isLoading: historyLoading } = useQuery(
+    historicalVitalsQueryOptions(patientId, range),
+  )
 
-    // Only flash on actual level change, not initial render
-    if (prev !== null && prev !== threshold.level) {
-      setFlash(true)
-      const timeout = setTimeout(() => setFlash(false), 500)
-      return () => clearTimeout(timeout)
-    }
-  }, [threshold.level])
+  const isHistory = range !== '6h' || (historyData !== undefined && historyData.length > 0)
+  const activeData = historyData ?? []
 
   return (
-    <div
-      className={cn(
-        // Warm card: rounded-2xl matches card.tsx, bg-card is warm off-white/dark-brown
-        'rounded-2xl border bg-card p-4 shadow-sm transition-colors duration-300',
-        flash && threshold.borderClass,
-      )}
-    >
-      {/* Header: icon + label on left, badge on right */}
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
+      {/* Header row: icon + label left, colored value right */}
+      <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <Icon className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">{label}</span>
+          <span className="text-sm font-medium text-muted-foreground">{label}</span>
         </div>
-        <VitalBadge label={currentValue} threshold={threshold} size="sm" />
+        <span
+          className={`text-2xl font-bold tabular-nums leading-none ${threshold.valueTextClass}`}
+        >
+          {currentValue}
+        </span>
       </div>
 
-      {/* Chart body */}
-      {children}
+      {/* Time range selector below header */}
+      <div className="mt-2">
+        <ChartTimeRangeSelector value={range} onChange={updateRange} />
+      </div>
+
+      {/* Chart area */}
+      <div className="mt-3">
+        {historyLoading ? (
+          <Skeleton className="h-[280px] w-full rounded-xl" />
+        ) : (
+          renderChart(activeData, range, isHistory)
+        )}
+      </div>
     </div>
   )
 }
