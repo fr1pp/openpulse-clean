@@ -155,7 +155,6 @@ function PatientDetailPage() {
               thresholdLines={hrThresholdLines}
               bands={hrBands}
               evaluator={evaluateHeartRate}
-              syncId="vital-charts"
               {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
               {...(rangeBand ? { showRangeBand: true, minKey: 'heartRateMin', maxKey: 'heartRateMax' } : {})}
             />
@@ -173,7 +172,6 @@ function PatientDetailPage() {
               thresholdLines={bpThresholdLines}
               bands={bpBands}
               evaluator={evaluateBPSystolic}
-              syncId="vital-charts"
               {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
               {...(rangeBand ? {
                 showRangeBand: true,
@@ -199,7 +197,6 @@ function PatientDetailPage() {
               thresholdLines={spo2ThresholdLines}
               bands={spo2Bands}
               evaluator={evaluateSpO2}
-              syncId="vital-charts"
               {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
               {...(rangeBand ? { showRangeBand: true, minKey: 'spo2Min', maxKey: 'spo2Max' } : {})}
             />
@@ -219,7 +216,6 @@ function PatientDetailPage() {
               thresholdLines={tempThresholdLines}
               bands={tempBands}
               evaluator={evaluateTemperature}
-              syncId="vital-charts"
               {...(view === 'history' ? { tickFormatter: compactRelativeTime } : {})}
               {...(rangeBand ? { showRangeBand: true, minKey: 'temperatureMin', maxKey: 'temperatureMax' } : {})}
             />

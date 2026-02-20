@@ -1,4 +1,4 @@
-import { useMemo, useId } from 'react'
+import { useMemo, useId, useState, useRef, useEffect } from 'react'
 import {
   LineChart,
   ComposedChart,
@@ -16,6 +16,7 @@ import type { VitalReadingPayload, HistoricalReading } from '@openpulse/shared'
 import type { ThresholdResult } from '@/lib/thresholds'
 import { thresholdColors, thresholdBandColors, BAND_OPACITY } from '@/components/charts/chart-config'
 import { computeGradientStops } from '@/components/charts/threshold-gradient'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 export interface VitalLineChartProps {
@@ -36,8 +37,6 @@ export interface VitalLineChartProps {
   bands?: Array<{ y1: number; y2: number; level: 'normal' | 'concerning' | 'critical' }>
   /** Evaluator function for multi-colored line gradient. */
   evaluator?: (v: number | null) => ThresholdResult
-  /** syncId for synchronized crosshair across charts. */
-  syncId?: string
   /** Tick formatter override for X-axis (e.g. relative time). */
   tickFormatter?: (value: string) => string
   /** Whether this chart shows aggregated data with min/max range band. */
@@ -55,8 +54,13 @@ function defaultFormatTick(val: string) {
 
 /**
  * Reusable single-line vital sign chart with threshold reference lines.
- * Supports threshold band fills, gradient-colored lines, synchronized crosshair,
- * relative time axis, and min/max range bands for aggregated data.
+ * Supports threshold band fills, gradient-colored lines, relative time axis,
+ * and min/max range bands for aggregated data.
+ *
+ * Interactions:
+ * - Desktop: hover tooltip with dashed cursor
+ * - Mobile: sticky-tap tooltip (tap point to pin, tap outside to dismiss)
+ * - CSS slide animation when new data points arrive
  */
 export function VitalLineChart({
   data,
@@ -68,13 +72,24 @@ export function VitalLineChart({
   className,
   bands,
   evaluator,
-  syncId,
   tickFormatter,
   showRangeBand,
   minKey,
   maxKey,
 }: VitalLineChartProps) {
   const gradientId = useId()
+  const isMobile = useIsMobile()
+  const [pinnedIndex, setPinnedIndex] = useState<number | null>(null)
+  const [animKey, setAnimKey] = useState(0)
+  const prevDataLengthRef = useRef(data.length)
+
+  // Trigger slide animation when new data points arrive
+  useEffect(() => {
+    if (data.length > prevDataLengthRef.current) {
+      setAnimKey((k) => k + 1)
+    }
+    prevDataLengthRef.current = data.length
+  }, [data.length])
 
   const gradientStops = useMemo(() => {
     if (!evaluator || data.length === 0) return null
@@ -84,14 +99,34 @@ export function VitalLineChart({
   // Determine the line color: use gradient URL if available, otherwise lineColor or undefined (config default)
   const lineStroke = gradientStops ? `url(#${gradientId})` : lineColor
 
-  // Use ComposedChart when showing range band (needs Area support), LineChart otherwise
+  // Use ComposedChart when showing range band (needs Area support), or always (for consistency)
   const useComposed = showRangeBand && minKey && maxKey
+
+  const handleChartClick = (chartData: any) => {
+    if (!isMobile) return
+    if (chartData?.activeTooltipIndex != null) {
+      setPinnedIndex((prev) =>
+        prev === chartData.activeTooltipIndex ? null : chartData.activeTooltipIndex
+      )
+    } else {
+      setPinnedIndex(null)
+    }
+  }
 
   const sharedProps = {
     data,
     accessibilityLayer: true as const,
-    ...(syncId ? { syncId } : {}),
+    onClick: handleChartClick,
   }
+
+  // Mobile: controlled tooltip with click trigger; Desktop: default hover behavior
+  const tooltipProps = isMobile
+    ? {
+        trigger: 'click' as const,
+        active: pinnedIndex !== null ? true : undefined,
+        defaultIndex: pinnedIndex ?? undefined,
+      }
+    : {}
 
   const chartContent = (
     <>
@@ -138,8 +173,9 @@ export function VitalLineChart({
         />
       ))}
       <ChartTooltip
+        {...tooltipProps}
         content={<ChartTooltipContent />}
-        cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }}
+        cursor={isMobile ? false : { stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }}
       />
       {useComposed && (
         <>
@@ -178,15 +214,17 @@ export function VitalLineChart({
 
   return (
     <ChartContainer config={config} className={cn('h-[200px] w-full', className)}>
-      {useComposed ? (
-        <ComposedChart {...sharedProps}>
-          {chartContent}
-        </ComposedChart>
-      ) : (
-        <LineChart {...sharedProps}>
-          {chartContent}
-        </LineChart>
-      )}
+      <div key={animKey} className="chart-slide-in contents">
+        {useComposed ? (
+          <ComposedChart {...sharedProps}>
+            {chartContent}
+          </ComposedChart>
+        ) : (
+          <LineChart {...sharedProps}>
+            {chartContent}
+          </LineChart>
+        )}
+      </div>
     </ChartContainer>
   )
 }

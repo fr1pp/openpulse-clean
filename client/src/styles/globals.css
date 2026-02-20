@@ -159,6 +159,22 @@
   }
 }
 
+/* Chart slide-in animation for real-time data updates */
+@keyframes chart-slide-in {
+  from {
+    transform: translateX(4px);
+    opacity: 0.92;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.chart-slide-in {
+  animation: chart-slide-in 300ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
