@@ -34,7 +34,7 @@ function ManagementPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 shrink-0">
@@ -49,7 +49,7 @@ function ManagementPage() {
           </p>
         </div>
         {isAdmin && (
-          <Button onClick={() => setCreateOpen(true)} className="shrink-0">
+          <Button onClick={() => setCreateOpen(true)} className="shrink-0 self-end sm:self-auto">
             <UserPlus className="mr-2 h-4 w-4" />
             Add Patient
           </Button>
@@ -57,7 +57,7 @@ function ManagementPage() {
       </div>
 
       {/* Table area */}
-      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-x-auto overflow-y-hidden">
         {isLoading ? (
           <div className="p-4 space-y-2">
             {Array.from({ length: 6 }).map((_, i) => (

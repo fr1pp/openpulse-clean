@@ -54,10 +54,10 @@ export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead>Date of Birth</TableHead>
-          <TableHead>Gender</TableHead>
-          <TableHead>Primary Condition</TableHead>
-          <TableHead className="w-[100px]">Actions</TableHead>
+          <TableHead className="hidden sm:table-cell">Date of Birth</TableHead>
+          <TableHead className="hidden sm:table-cell">Gender</TableHead>
+          <TableHead className="hidden md:table-cell">Primary Condition</TableHead>
+          <TableHead className="w-auto text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -66,11 +66,11 @@ export function PatientTable({ patients, isAdmin, onEdit, onDelete, renderName }
             <TableCell className="font-medium">
               {renderName ? renderName(patient) : `${patient.firstName} ${patient.lastName}`}
             </TableCell>
-            <TableCell className="text-muted-foreground">{formatDOB(patient.dateOfBirth)}</TableCell>
-            <TableCell className="capitalize text-muted-foreground">{patient.gender}</TableCell>
-            <TableCell className="text-muted-foreground">{patient.primaryCondition ?? '—'}</TableCell>
+            <TableCell className="hidden sm:table-cell text-muted-foreground">{formatDOB(patient.dateOfBirth)}</TableCell>
+            <TableCell className="hidden sm:table-cell capitalize text-muted-foreground">{patient.gender}</TableCell>
+            <TableCell className="hidden md:table-cell text-muted-foreground">{patient.primaryCondition ?? '—'}</TableCell>
             <TableCell>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 justify-end">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
