@@ -70,7 +70,7 @@ function PatientDetailPage() {
     : undefined
 
   // Recent vitals for real-time display in chart headers (30-min window)
-  const { data: recentData, isLoading: vitalsLoading } = useQuery(
+  const { isLoading: vitalsLoading } = useQuery(
     recentVitalsQueryOptions(id),
   )
 
