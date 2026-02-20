@@ -20,6 +20,7 @@ const chartConfig: ChartConfig = {
 /**
  * Minimal inline sparkline for vital trend visualization.
  * No axes, grid, or tooltips — just a colored trend line.
+ * 70px tall and full-width for prominent data density in the dashboard card grid.
  */
 export function VitalSparkline({ data, dataKey, color, className }: VitalSparklineProps) {
   if (!data || data.length === 0) return null
@@ -30,7 +31,7 @@ export function VitalSparkline({ data, dataKey, color, className }: VitalSparkli
     : data
 
   return (
-    <ChartContainer config={chartConfig} className={cn('h-8 w-20', className)}>
+    <ChartContainer config={chartConfig} className={cn('h-[70px] w-full', className)}>
       <LineChart data={trimmed}>
         <Line
           type="monotone"

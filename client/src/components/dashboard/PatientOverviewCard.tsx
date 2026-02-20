@@ -1,8 +1,6 @@
-import { useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type { PatientListItem } from '@/api/queries/patients'
 import { vitalsKeys, fetchLatestVital, fetchRecentVitals } from '@/api/queries/vitals'
-import { VitalBadge } from '@/components/dashboard/VitalBadge'
 import { VitalSparkline } from '@/components/dashboard/VitalSparkline'
 import {
   evaluateHeartRate,
@@ -11,7 +9,6 @@ import {
   evaluateTemperature,
   worstOfFour,
 } from '@/lib/thresholds'
-import type { ThresholdResult } from '@/lib/thresholds'
 import { formatVitalValue, formatBP, calculateAge } from '@/lib/vitals-format'
 import { cn } from '@/lib/utils'
 
@@ -20,25 +17,11 @@ export interface PatientOverviewCardProps {
   onClick: () => void
 }
 
-/** Tailwind border-l color class from threshold status (left accent border). Clinical colors are preserved. */
-function borderColorClass(result: ThresholdResult): string {
-  switch (result.level) {
+/** Map threshold level to a CSS hex color for sparkline stroke. Clinical colors intentionally hardcoded. */
+function sparklineColor(level: string): string {
+  switch (level) {
     case 'critical':
-      return 'border-l-red-500'
-    case 'concerning':
-      return 'border-l-amber-500'
-    case 'normal':
-      return 'border-l-emerald-500'
-    default:
-      return 'border-l-border'
-  }
-}
-
-/** Map threshold level to a CSS variable reference for sparkline stroke. Dark-mode-aware via CSS variables. */
-function sparklineColor(result: ThresholdResult): string {
-  switch (result.level) {
-    case 'critical':
-      return '#ef4444' // red-500 — clinical color, intentionally hardcoded for clinical clarity
+      return '#ef4444' // red-500 — clinical color
     case 'concerning':
       return '#f59e0b' // amber-500 — clinical color
     case 'normal':
@@ -48,13 +31,24 @@ function sparklineColor(result: ThresholdResult): string {
   }
 }
 
+/** Worst-of-four status dot color class. */
+function statusDotClass(level: string): string {
+  switch (level) {
+    case 'critical':
+      return 'bg-red-500'
+    case 'concerning':
+      return 'bg-amber-500'
+    case 'normal':
+      return 'bg-emerald-500'
+    default:
+      return 'bg-border'
+  }
+}
+
 /**
- * Patient overview card for the dashboard grid.
- * Shows patient info, 4 vital badges with dual encoding, mini sparklines,
- * severity-colored left border, and background flash on value change.
- *
- * Warm design: rounded-2xl card with subtle shadow, semantic colors throughout.
- * Clinical status colors (emerald/amber/red) are intentionally preserved per RTMON-09.
+ * Patient overview card for the dashboard — single-column layout.
+ * Shows patient name/age with 2x2 grid of vital labels, colored text values, and 70px sparklines.
+ * Apple Health aesthetic: no left border accent, no background flash, no badge pills.
  */
 export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardProps) {
   const { data: latest } = useQuery({
@@ -78,24 +72,6 @@ export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardPro
   const tempResult = evaluateTemperature(latest?.temperature ?? null)
   const worst = worstOfFour([hrResult, bpResult, spo2Result, tempResult])
 
-  // Background flash on vital value change — uses bg-primary/5 (warm tint)
-  const prevValsRef = useRef<string>('')
-  const flashRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!latest) return
-    const valsKey = `${latest.heartRate}-${latest.bpSystolic}-${latest.spo2}-${latest.temperature}`
-    if (prevValsRef.current && prevValsRef.current !== valsKey) {
-      const el = flashRef.current
-      if (el) {
-        el.classList.add('bg-primary/5')
-        const timeout = setTimeout(() => el.classList.remove('bg-primary/5'), 200)
-        return () => clearTimeout(timeout)
-      }
-    }
-    prevValsRef.current = valsKey
-  }, [latest])
-
   const age = calculateAge(patient.dateOfBirth)
   const recentData = recent ?? []
 
@@ -103,39 +79,40 @@ export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardPro
     {
       label: 'HR',
       value: formatVitalValue('heartRate', latest?.heartRate ?? null),
-      threshold: hrResult,
+      valueTextClass: hrResult.valueTextClass,
+      sparkColor: sparklineColor(hrResult.level),
       sparkKey: 'heartRate' as const,
     },
     {
       label: 'BP',
       value: formatBP(latest?.bpSystolic ?? null, latest?.bpDiastolic ?? null),
-      threshold: bpResult,
+      valueTextClass: bpResult.valueTextClass,
+      sparkColor: sparklineColor(bpResult.level),
       sparkKey: 'bpSystolic' as const,
     },
     {
       label: 'SpO2',
       value: formatVitalValue('spo2', latest?.spo2 ?? null),
-      threshold: spo2Result,
+      valueTextClass: spo2Result.valueTextClass,
+      sparkColor: sparklineColor(spo2Result.level),
       sparkKey: 'spo2' as const,
     },
     {
       label: 'Temp',
       value: formatVitalValue('temperature', latest?.temperature ?? null),
-      threshold: tempResult,
+      valueTextClass: tempResult.valueTextClass,
+      sparkColor: sparklineColor(tempResult.level),
       sparkKey: 'temperature' as const,
     },
   ]
 
   return (
     <div
-      ref={flashRef}
       onClick={onClick}
       className={cn(
-        // Warm Card styling: rounded-2xl matches card.tsx, bg-card is warm off-white/dark-brown
-        'cursor-pointer rounded-2xl border border-l-4 bg-card p-4',
-        // Subtle shadow with warm hover elevation
-        'shadow-sm transition-all duration-200 hover:shadow-md hover:border-border/80',
-        borderColorClass(worst),
+        // Apple Health minimal card — no left border accent
+        'cursor-pointer rounded-2xl border border-border/50 bg-card p-4',
+        'shadow-sm transition-shadow duration-200 hover:shadow-md',
       )}
       role="button"
       tabIndex={0}
@@ -146,28 +123,39 @@ export function PatientOverviewCard({ patient, onClick }: PatientOverviewCardPro
         }
       }}
     >
-      {/* Header: patient name and demographic info */}
-      <div className="mb-3">
-        <h3 className="text-sm font-semibold leading-tight text-foreground">
-          {patient.firstName} {patient.lastName}
-        </h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {age} y/o &middot; {patient.primaryCondition ?? 'No condition noted'}
-        </p>
+      {/* Header: patient name + age left, worst status dot right */}
+      <div className="mb-3 flex items-start justify-between">
+        <div>
+          <h3 className="text-base font-semibold leading-tight text-foreground">
+            {patient.firstName} {patient.lastName}
+          </h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {age} y/o &middot; {patient.primaryCondition ?? 'No condition noted'}
+          </p>
+        </div>
+        {/* Worst-of-four status dot */}
+        <span
+          className={cn('mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full', statusDotClass(worst.level))}
+          aria-label={`Patient status: ${worst.level}`}
+        />
       </div>
 
-      {/* Vitals 2x2 grid */}
+      {/* Vitals 2x2 grid — label + colored value + full-width sparkline */}
       <div className="grid grid-cols-2 gap-3">
         {vitals.map((v) => (
           <div key={v.label} className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">{v.label}</span>
-              <VitalBadge label={v.value} threshold={v.threshold} size="sm" />
+            {/* Label + value on one line */}
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">{v.label}</span>
+              <span className={cn('text-sm font-bold tabular-nums', v.valueTextClass)}>
+                {v.value}
+              </span>
             </div>
+            {/* Full-width 70px sparkline */}
             <VitalSparkline
               data={recentData}
               dataKey={v.sparkKey}
-              color={sparklineColor(v.threshold)}
+              color={v.sparkColor}
             />
           </div>
         ))}

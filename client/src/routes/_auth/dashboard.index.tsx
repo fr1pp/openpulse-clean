@@ -61,7 +61,7 @@ function DashboardPage() {
   }, [patients, sortBy, queryClient])
 
   return (
-    <div>
+    <div className="max-w-3xl mx-auto">
       {/* Header with sort toggle */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -71,15 +71,15 @@ function DashboardPage() {
         <PatientSortToggle sortBy={sortBy} onSortChange={setSortBy} />
       </div>
 
-      {/* Patient card grid */}
+      {/* Patient card list — single column */}
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <PatientCardSkeleton key={i} />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-3">
           {sortedPatients.map((patient) => (
             <PatientOverviewCard
               key={patient.id}
