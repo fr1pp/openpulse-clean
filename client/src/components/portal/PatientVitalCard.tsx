@@ -22,7 +22,7 @@ interface PatientVitalCardProps {
 function relativeTime(timestamp: string): string {
   const diffMs = Date.now() - new Date(timestamp).getTime()
   const mins = Math.floor(diffMs / 60000)
-  if (mins < 1) return 'Just now'
+  if (mins < 1) return 'just now'
   if (mins === 1) return '1 minute ago'
   return `${mins} minutes ago`
 }
@@ -59,7 +59,7 @@ export function PatientVitalCard({
           {/* Vital label */}
           <span className="text-base font-medium text-muted-foreground">{label}</span>
           {/* Large vital number — 48px, top of 36-48px range for elderly readability */}
-          <span className="text-5xl font-bold text-foreground mt-1 leading-none">{value}</span>
+          <span className="text-3xl sm:text-5xl font-bold text-foreground mt-1 leading-none">{value}</span>
 
           {/* Freshness indicator — shows relative time below the value */}
           {timestamp && (

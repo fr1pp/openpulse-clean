@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { QRCodeSVG } from 'qrcode.react'
-import { Copy, KeyRound, Printer, RefreshCw } from 'lucide-react'
+import { ChevronDown, Copy, KeyRound, Printer, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { patientDetailQueryOptions } from '@/api/queries/patients'
 import { useAdminRole } from '@/hooks/useAdminRole'
@@ -20,6 +20,7 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
   const isAdmin = useAdminRole()
   const { data: patient, isLoading } = useQuery(patientDetailQueryOptions(patientId))
 
+  const [collapsed, setCollapsed] = useState(true)
   const [regenOpen, setRegenOpen] = useState(false)
   const [revealData, setRevealData] = useState<{
     accessCode: string
@@ -56,53 +57,66 @@ export function AccessCodePanel({ patientId, patientName }: AccessCodePanelProps
   return (
     <>
       <div className="rounded-2xl border bg-card p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setCollapsed(!collapsed)}
+          aria-expanded={!collapsed}
+          className="flex w-full items-center gap-2 mb-3"
+        >
           <KeyRound className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-semibold text-foreground">Access Code</h3>
-        </div>
+          <ChevronDown
+            className="ml-auto h-4 w-4 text-muted-foreground transition-transform duration-200"
+            style={{ transform: collapsed ? undefined : 'rotate(180deg)' }}
+          />
+        </button>
 
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
-          {/* Code display */}
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Patient Code</span>
-            <span className="font-mono text-4xl font-bold tracking-widest">
-              {patient.accessCode}
-            </span>
-          </div>
+        {!collapsed && (
+          <>
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+              {/* Code display */}
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">Patient Code</span>
+                <span className="font-mono text-4xl font-bold tracking-widest">
+                  {patient.accessCode}
+                </span>
+              </div>
 
-          {/* QR code */}
-          {qrUrl && (
-            <QRCodeSVG
-              value={qrUrl}
-              size={120}
-              level="M"
-              title={`QR code for patient ${patientName}`}
-            />
-          )}
+              {/* QR code */}
+              {qrUrl && (
+                <QRCodeSVG
+                  value={qrUrl}
+                  size={96}
+                  level="M"
+                  title={`QR code for patient ${patientName}`}
+                />
+              )}
 
-          {/* Action buttons */}
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:ml-auto">
-            <Button variant="outline" size="sm" onClick={handleCopy} className="w-full sm:w-auto">
-              <Copy className="mr-2 h-3.5 w-3.5" />
-              Copy Code
-            </Button>
-            <Button variant="outline" size="sm" onClick={handlePrint} className="w-full sm:w-auto">
-              <Printer className="mr-2 h-3.5 w-3.5" />
-              Print
-            </Button>
-            {isAdmin && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setRegenOpen(true)}
-                className="w-full sm:w-auto"
-              >
-                <RefreshCw className="mr-2 h-3.5 w-3.5" />
-                Regenerate
-              </Button>
-            )}
-          </div>
-        </div>
+              {/* Action buttons */}
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:ml-auto">
+                <Button variant="outline" size="sm" onClick={handleCopy} className="w-full sm:w-auto">
+                  <Copy className="mr-2 h-3.5 w-3.5" />
+                  Copy Code
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrint} className="w-full sm:w-auto">
+                  <Printer className="mr-2 h-3.5 w-3.5" />
+                  Print
+                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setRegenOpen(true)}
+                    className="w-full sm:w-auto"
+                  >
+                    <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                    Regenerate
+                  </Button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Hidden access card for print — becomes visible during print via print:block */}

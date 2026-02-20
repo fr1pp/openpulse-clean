@@ -110,7 +110,7 @@ export function VitalLineChart({
         tickFormatter={tickFormatter ?? defaultFormatTick}
         tickLine={false}
         axisLine={false}
-        minTickGap={40}
+        minTickGap={80}
       />
       <YAxis
         domain={yDomain ?? ['auto', 'auto']}

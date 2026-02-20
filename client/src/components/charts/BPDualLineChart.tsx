@@ -113,7 +113,7 @@ export function BPDualLineChart({
         tickFormatter={tickFormatter ?? defaultFormatTick}
         tickLine={false}
         axisLine={false}
-        minTickGap={40}
+        minTickGap={80}
       />
       <YAxis
         domain={yDomain ?? ['auto', 'auto']}
