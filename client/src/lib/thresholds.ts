@@ -11,6 +11,11 @@ export interface ThresholdResult {
   textClass: string
   borderClass: string
   icon: 'CheckCircle2' | 'AlertTriangle' | 'XOctagon' | 'Minus'
+  /**
+   * Colored text class for vital values rendered on card backgrounds (not badge/chip).
+   * Use this when the number itself communicates status (Apple Health style).
+   */
+  valueTextClass: string
 }
 
 type StatusEntry = Omit<ThresholdResult, 'level'>
@@ -26,6 +31,7 @@ export const STATUS_MAP: Record<ThresholdLevel | 'unknown', StatusEntry> = {
     textClass: 'text-white',
     borderClass: 'border-emerald-500',
     icon: 'CheckCircle2',
+    valueTextClass: 'text-emerald-600 dark:text-emerald-400',
   },
   concerning: {
     color: 'amber-500',
@@ -33,6 +39,7 @@ export const STATUS_MAP: Record<ThresholdLevel | 'unknown', StatusEntry> = {
     textClass: 'text-white',
     borderClass: 'border-amber-500',
     icon: 'AlertTriangle',
+    valueTextClass: 'text-amber-600 dark:text-amber-400',
   },
   critical: {
     color: 'red-500',
@@ -40,6 +47,7 @@ export const STATUS_MAP: Record<ThresholdLevel | 'unknown', StatusEntry> = {
     textClass: 'text-white',
     borderClass: 'border-red-500',
     icon: 'XOctagon',
+    valueTextClass: 'text-red-600 dark:text-red-400',
   },
   unknown: {
     color: 'gray-400',
@@ -47,6 +55,7 @@ export const STATUS_MAP: Record<ThresholdLevel | 'unknown', StatusEntry> = {
     textClass: 'text-white',
     borderClass: 'border-gray-400',
     icon: 'Minus',
+    valueTextClass: 'text-foreground',
   },
 }
 
