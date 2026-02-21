@@ -1,4 +1,3 @@
-.planning/
 node_modules
 REPORT.md
 dist
@@ -11,6 +10,7 @@ drizzle/
 *.gen.ts
 *.tsbuildinfo
 client/.tanstack/
+.claude/
 
 # TypeScript build artifacts (client uses Vite, tsc is type-check only)
 client/src/**/*.js
