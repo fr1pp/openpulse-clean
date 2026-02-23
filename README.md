@@ -11,6 +11,36 @@ The system is built around two distinct user interfaces designed for fundamental
 - **Healthcare Professional Dashboard** — A clinical interface with multi-patient overview, colour-coded threshold indicators (normal/concerning/critical), severity-based sorting, interactive trend charts with configurable time ranges, and patient management tools.
 - **Patient Portal** — An elderly-first interface with large text, high contrast, simplified navigation, and minimal cognitive load. Patients authenticate via a 4-character access code or QR scan rather than traditional email/password.
 
+## Screenshots
+
+### Healthcare Professional Dashboard
+Multi-patient overview with real-time vital signs, sparkline trends, severity sorting, and colour-coded clinical thresholds.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Patient Detail View
+Individual patient monitoring with interactive charts for each vital sign, configurable time ranges (6h/24h/7d/30d), threshold reference lines, and a QR code for patient self-access.
+
+![Patient Detail](docs/screenshots/patient-detail.png)
+
+### Patient Portal
+Elderly-first accessible interface with large text, high-contrast colours, simplified navigation, and per-vital trend charts. Greets the patient by name with a time-appropriate message.
+
+![Patient Portal](docs/screenshots/patient-portal.png)
+
+### Patient Management
+CRUD interface for managing patient records, access codes, and demographics.
+
+![Patient Management](docs/screenshots/management.png)
+
+### Authentication
+Dual login system — email/password for healthcare professionals (left), 4-character access code or QR scan for patients (right).
+
+<p float="left">
+  <img src="docs/screenshots/login.png" width="49%" />
+  <img src="docs/screenshots/patient-login.png" width="49%" />
+</p>
+
 ## Architecture
 
 OpenPulse is a pnpm monorepo with three packages:
@@ -215,5 +245,5 @@ This starts both the client on `localhost:5173` and the server on `localhost:300
 
 ### Default Credentials
 
-- **Healthcare Pro:** `admin@openpulse.com` / `password123`
-- **Patient:** Any seeded patient's 4-character access code (visible in the management interface after logging in as a pro)
+- **Healthcare Pro:** `admin@openpulse.dev` / `password123`
+- **Patient:** Any seeded patient's 4-character access code (e.g., `MT85`, `RC71`) — visible in the management interface after logging in as a pro
