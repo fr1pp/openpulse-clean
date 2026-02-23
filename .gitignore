@@ -11,6 +11,10 @@ drizzle/
 *.tsbuildinfo
 client/.tanstack/
 .claude/
+CLAUDE.md
+.planning/
+.mcp.json
+TODO
 
 # TypeScript build artifacts (client uses Vite, tsc is type-check only)
 client/src/**/*.js
